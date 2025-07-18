@@ -2,6 +2,7 @@ HouseHotbar = {}
 local saved
 local LAM = LibAddonMenu2
 local panelName = "HouseHotbarPanel"
+local logger = LibDebugLogger("HouseHotbar")
 
 local KNOWN_DUMMY_HOUSES = {
   81,   -- Mara's Kiss Public House
@@ -18,12 +19,16 @@ local KNOWN_DUMMY_HOUSES = {
 
 -- Addon init
 local function OnAddOnLoaded(_, addonName)
+    logger:Debug("Addon loaded")
     if addonName ~= "HouseHotbar" then return end
+    logger:Debug("Addon initializing")
     EVENT_MANAGER:UnregisterForEvent("HouseHotbarInitialize", EVENT_ADD_ON_LOADED)
 
     if not HouseHotbar.saved.returnHouseId then
+      logger:Debug("In Suggest Dummy House")
       local suggested = SuggestDummyHouse()
       if suggested then
+        logger:Debug(suggested)
         HouseHotbar.saved.returnHouseId = suggested
         d(string.format("House Hotbar: Auto-selected '%s' as dummy house.", GetCollectibleInfo(suggested)))
       else
@@ -31,18 +36,18 @@ local function OnAddOnLoaded(_, addonName)
       end
     end
 
-    saved = ZO_SavedVars:New("HouseHotbar_Saved", 1, nil, {
-        slots = {},
-        returnHouseId = nil
-    })
-
+    logger:Debug("Before register for event")
     EVENT_MANAGER:RegisterForEvent("HouseHotbarStart", EVENT_PLAYER_ACTIVATED, function()
     if not HouseHotbar._isReturning then return end
-
+    logger:Debug("After is returning")
     local zoneId = GetZoneId(GetUnitZoneIndex("player"))
+    logger:Debug(zoneId)
     local currentCollectible = GetCurrentZoneHouseId()
+    logger:Debug(currentCollectible)
     local expected = HouseHotbar.saved.returnHouseId
+    logger:Debug(expected)
 
+    logger:Debug("After exit the house")
     if currentCollectible == expected then
         -- Exit the house immediately
         HouseHotbar._isReturning = false
@@ -51,6 +56,7 @@ local function OnAddOnLoaded(_, addonName)
     end
     end)
 
+    logger:Debug("Before create default slots")
     -- Create default slots
     for i = 1, 7 do
         if saved.slots[i] == nil then
@@ -58,11 +64,12 @@ local function OnAddOnLoaded(_, addonName)
         end
     end
 
+    logger:Debug("Before create settings menu")
     HouseHotbar.CreateSettingsMenu()
-    HouseHotbar.saved = saved
+    logger:Debug("Before create settings menu")
 
     HouseHotbar.saved = ZO_SavedVars:New("HouseHotbarSaved", 1, nil, {
-      houseAssignments = {},       -- [1] to [7] = collectibleId
+      houseAssignments = {},       -- { collectibleId = 1, useExterior = false } to { collectibleId = 7, useExterior = true } = collectibleId, exteriorPreference
       returnHouseId = nil,
     })
 end
@@ -75,40 +82,6 @@ local function SuggestDummyHouse()
     end
   end
   return nil -- fallback if user owns all
-end
-
--- Travel to a house slot (1-7)
-function HouseHotbar_Travel(slot)
-    local collectibleId = saved.slots[slot]
-    if collectibleId and IsCollectibleUnlocked(collectibleId) then
-        JumpToCollectibleHouse(collectibleId)
-    else
-        d("Slot " .. slot .. " is unassigned or the house is not unlocked.")
-    end
-end
-
--- Return to original location using an unowned house
-function HouseHotbar_ReturnToOriginal()
-    local dumId = saved.returnHouseId
-    if not dumId then
-        d("No unowned house set for return travel.")
-        return
-    end
-
-    if IsCollectibleUnlocked(dumId) then
-        d("Your jumpback house is owned! This won't work.")
-        return
-    end
-
-    d("Teleporting to unowned house to return to original location...")
-    JumpToCollectibleHouse(dumId)
-
-    -- Wait for zone change then leave the house
-    EVENT_MANAGER:RegisterForEvent("HouseHotbar", EVENT_PLAYER_ACTIVATED, function()
-        EVENT_MANAGER:UnregisterForEvent("HouseHotbar", EVENT_PLAYER_ACTIVATED)
-        d("Leaving house to return to original location...")
-        RequestJumpToHouseLeave()
-    end)
 end
 
 local function GetHouseDropdownChoices()
@@ -180,22 +153,23 @@ function HouseHotbar.CreateSettingsMenu()
                 end
             end,
         })
-        -- Checkbox for interior vs. exterior
-        table.insert(options, {
-            type = "checkbox",
-            name = "Use Exterior",
-            tooltip = "If checked, you'll travel to the outside of the house.",
-            getFunc = function()
-                local data = HouseHotbar.saved.houseAssignments[i]
-                return data and data.useExterior or false
-            end,
-            setFunc = function(value)
-                HouseHotbar.saved.houseAssignments[i] = HouseHotbar.saved.houseAssignments[i] or {}
-                HouseHotbar.saved.houseAssignments[i].useExterior = value
-            end,
-            width = "half",
-        })
     end
+
+-- Checkbox for interior vs. exterior
+table.insert(options, {
+    type = "checkbox",
+    name = "Use Exterior",
+    tooltip = "If checked, you'll travel to the outside of the house.",
+    getFunc = function()
+        local data = HouseHotbar.saved.houseAssignments[i]
+        return data and data.useExterior or false
+    end,
+    setFunc = function(value)
+        HouseHotbar.saved.houseAssignments[i] = HouseHotbar.saved.houseAssignments[i] or {}
+        HouseHotbar.saved.houseAssignments[i].useExterior = value
+    end,
+    width = "half",
+})
 
 -- Dummy house picker
     table.insert(options, {
@@ -264,7 +238,7 @@ function HouseHotbar.OpenRadialMenu()
     HouseRadialMenu:SetHidden(false)
     ZO_RadialMenu:Clear()
 
-    local function teleportToCollectible(assignment, id)
+    local function teleportToCollectible(id, assignment)
         if IsCollectibleUnlocked(id) then
             if assignment.useExterior and CanJumpToCollectibleOutside(id) then
               JumpToCollectibleOutside(id)
@@ -278,11 +252,11 @@ function HouseHotbar.OpenRadialMenu()
 
     -- Add 7 house slots
     for i = 1, 7 do
-        local id = HouseHotbar.saved.slots[i]
+        local id, assignment = HouseHotbar.saved.slots[i]
         if id then
             local name, _, icon = GetCollectibleInfo(id)
             ZO_RadialMenu:AddEntry(name, icon, function()
-                teleportToCollectible(id)
+                teleportToCollectible(id, assignment)
             end)
         end
     end
