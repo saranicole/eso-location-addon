@@ -6,8 +6,6 @@
 ## SavedVariables: HouseWheel_Saved
 ## DependsOn: LibAddonMenu-2.0>=32
 libs\LibAddonMenu-2.0\LibAddonMenu-2.0.lua
-local LAM = LibAddonMenu2
-
 
 Bindings.xml
 HouseHotkey.lua
