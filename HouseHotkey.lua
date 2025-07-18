@@ -1,5 +1,7 @@
 HouseHotbar = {}
 local saved
+local LAM = LibAddonMenu2
+local panelName = "HouseHotbarPanel"
 
 local KNOWN_DUMMY_HOUSES = {
   81,   -- Mara's Kiss Public House
@@ -63,13 +65,13 @@ local function OnAddOnLoaded(_, addonName)
     if addonName ~= "HouseHotbar" then return end
     EVENT_MANAGER:UnregisterForEvent("HouseHotbar", EVENT_ADD_ON_LOADED)
 
-    if not MyHouseHotbar.saved.returnHouseId then
+    if not HouseHotbar.saved.returnHouseId then
       local suggested = SuggestDummyHouse()
       if suggested then
-        MyHouseHotbar.saved.returnHouseId = suggested
-        d(string.format("My House Hotbar: Auto-selected '%s' as dummy house.", GetCollectibleInfo(suggested)))
+        HouseHotbar.saved.returnHouseId = suggested
+        d(string.format("House Hotbar: Auto-selected '%s' as dummy house.", GetCollectibleInfo(suggested)))
       else
-        d("My House Hotbar: No unowned dummy house available. Please set one manually.")
+        d("House Hotbar: No unowned dummy house available. Please set one manually.")
       end
     end
 
@@ -79,7 +81,7 @@ local function OnAddOnLoaded(_, addonName)
     })
 
     EVENT_MANAGER:RegisterForEvent("HouseHotbar", EVENT_PLAYER_ACTIVATED, function()
-    if not MyHouseHotbar._isReturning then return end
+    if not HouseHotbar._isReturning then return end
 
     local zoneId = GetZoneId(GetUnitZoneIndex("player"))
     local currentCollectible = GetCurrentZoneHouseId()
@@ -110,76 +112,7 @@ local function OnAddOnLoaded(_, addonName)
       houseAssignments = {},       -- [1] to [7] = collectibleId
       returnHouseId = nil,
     })
-    local panelData = {
-    type = "panel",
-    name = "My House Hotbar",
-    author = "YourName",
-    version = "1.0",
-    registerForRefresh = true,
-    registerForDefaults = true,
-}
-
-local optionsTable = {}
-
--- Header
-table.insert(optionsTable, {
-    type = "header",
-    name = "House Hotkeys",
-})
-
--- Add 7 dropdowns for house slots
-for i = 1, 7 do
-    table.insert(optionsTable, {
-        type = "dropdown",
-        name = "Slot " .. i,
-        tooltip = "Assign a house to hotkey slot " .. i,
-        choices = {},
-        choicesValues = {},
-        getFunc = function()
-            return HouseHotbar.saved.houseAssignments[i]
-        end,
-        setFunc = function(value)
-            HouseHotbar.saved.houseAssignments[i] = value
-        end,
-        sort = false,
-        width = "half",
-        scrollable = true,
-        reference = "HouseHotbarSlot" .. i .. "Dropdown",
-    })
 end
-
--- Dummy house dropdown
-table.insert(optionsTable, {
-    type = "header",
-    name = "Return-to-Original Location Unowned House",
-})
-
-table.insert(optionsTable, {
-    type = "dropdown",
-    name = "Return House",
-    tooltip = "Used as a teleport anchor for returning to your original location.",
-    choices = {},
-    choicesValues = {},
-    getFunc = function()
-        return HouseHotbar.saved.returnHouseId
-    end,
-    setFunc = function(value)
-        HouseHotbar.saved.returnHouseId = value
-    end,
-    sort = false,
-    width = "half",
-    scrollable = true,
-    reference = "HouseHotbarReturnDropdown",
-})
-
--- Register the panel and controls
-LAM:RegisterAddonPanel("HouseHotbarPanel", panelData)
-LAM:RegisterOptionControls("HouseHotbarPanel", optionsTable)
-
-end
-
-local LAM = LibAddonMenu2
-local panelName = "HouseHotbarPanel"
 
 local function GetHouseDropdownChoices()
     local choices, values = {}, {}
@@ -342,7 +275,7 @@ function HouseHotbar.OpenRadialMenu()
     local returnId = HouseHotbar.saved.returnHouseId
     if returnId then
         ZO_RadialMenu:AddEntry("Return", "/esoui/art/icons/house_icon_placeholder.dds", function()
-            MyHouseHotbar._isReturning = true
+            HouseHotbar._isReturning = true
             UseCollectible(MyHouseHotbar.saved.returnHouseId)
         end)
     end
