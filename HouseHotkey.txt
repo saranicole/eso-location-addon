@@ -1,0 +1,10 @@
+## Title: House and Location Hotkey
+## Author: Sara Jarjoura
+## Version: 1.0.0
+## APIVersion: 101042
+## AddOnVersion: 1
+## SavedVariables: HouseWheel_Saved
+## DependsOn: LibAddonMenu-2.0
+
+Bindings.xml
+HouseHotkey.lua
