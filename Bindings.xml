@@ -1,9 +1,14 @@
 <Bindings>
   <Layer name="SI_KEYBINDINGS_CATEGORY_GENERAL">
-    <Category name="House Wheel">
-      <Action name="HOUSE_WHEEL_TOGGLE">
-        <Down>HouseWheel_Toggle()</Down>
-      </Action>
+    <Category name="House Hotbar">
+      <Action name="HOUSE_HOTBAR_SLOT1"><Down>HouseHotbar_Travel(1)</Down></Action>
+      <Action name="HOUSE_HOTBAR_SLOT2"><Down>HouseHotbar_Travel(2)</Down></Action>
+      <Action name="HOUSE_HOTBAR_SLOT3"><Down>HouseHotbar_Travel(3)</Down></Action>
+      <Action name="HOUSE_HOTBAR_SLOT4"><Down>HouseHotbar_Travel(4)</Down></Action>
+      <Action name="HOUSE_HOTBAR_SLOT5"><Down>HouseHotbar_Travel(5)</Down></Action>
+      <Action name="HOUSE_HOTBAR_SLOT6"><Down>HouseHotbar_Travel(6)</Down></Action>
+      <Action name="HOUSE_HOTBAR_SLOT7"><Down>HouseHotbar_Travel(7)</Down></Action>
+      <Action name="HOUSE_HOTBAR_RETURN"><Down>HouseHotbar_ReturnToOriginal()</Down></Action>
     </Category>
   </Layer>
 </Bindings>
