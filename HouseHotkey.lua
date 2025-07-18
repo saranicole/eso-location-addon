@@ -16,6 +16,57 @@ local KNOWN_DUMMY_HOUSES = {
   97,   -- Barbed Hook Private Room
 }
 
+-- Addon init
+local function OnAddOnLoaded(_, addonName)
+    if addonName ~= "HouseHotbar" then return end
+    EVENT_MANAGER:UnregisterForEvent("HouseHotbarInitialize", EVENT_ADD_ON_LOADED)
+
+    if not HouseHotbar.saved.returnHouseId then
+      local suggested = SuggestDummyHouse()
+      if suggested then
+        HouseHotbar.saved.returnHouseId = suggested
+        d(string.format("House Hotbar: Auto-selected '%s' as dummy house.", GetCollectibleInfo(suggested)))
+      else
+        d("House Hotbar: No unowned dummy house available. Please set one manually.")
+      end
+    end
+
+    saved = ZO_SavedVars:New("HouseHotbar_Saved", 1, nil, {
+        slots = {},
+        returnHouseId = nil
+    })
+
+    EVENT_MANAGER:RegisterForEvent("HouseHotbarStart", EVENT_PLAYER_ACTIVATED, function()
+    if not HouseHotbar._isReturning then return end
+
+    local zoneId = GetZoneId(GetUnitZoneIndex("player"))
+    local currentCollectible = GetCurrentZoneHouseId()
+    local expected = HouseHotbar.saved.returnHouseId
+
+    if currentCollectible == expected then
+        -- Exit the house immediately
+        HouseHotbar._isReturning = false
+        d("[HouseHotbar] Returning to original location...")
+        RequestJumpToHouseLeave()
+    end
+    end)
+
+    -- Create default slots
+    for i = 1, 7 do
+        if saved.slots[i] == nil then
+            saved.slots[i] = nil
+        end
+    end
+
+    HouseHotbar.CreateSettingsMenu()
+    HouseHotbar.saved = saved
+
+    HouseHotbar.saved = ZO_SavedVars:New("HouseHotbarSaved", 1, nil, {
+      houseAssignments = {},       -- [1] to [7] = collectibleId
+      returnHouseId = nil,
+    })
+end
+
 local function SuggestDummyHouse()
   for _, id in ipairs(KNOWN_DUMMY_HOUSES) do
     local unlocked = select(4, GetCollectibleInfo(id))
@@ -36,7 +87,7 @@ function HouseHotbar_Travel(slot)
     end
 end
 
--- Return to original location using a dum house
+-- Return to original location using an unowned house
 function HouseHotbar_ReturnToOriginal()
     local dumId = saved.returnHouseId
     if not dumId then
@@ -58,60 +109,6 @@ function HouseHotbar_ReturnToOriginal()
         d("Leaving house to return to original location...")
         RequestJumpToHouseLeave()
     end)
-end
-
--- Addon init
-local function OnAddOnLoaded(_, addonName)
-    if addonName ~= "HouseHotbar" then return end
-    EVENT_MANAGER:UnregisterForEvent("HouseHotbar", EVENT_ADD_ON_LOADED)
-
-    if not HouseHotbar.saved.returnHouseId then
-      local suggested = SuggestDummyHouse()
-      if suggested then
-        HouseHotbar.saved.returnHouseId = suggested
-        d(string.format("House Hotbar: Auto-selected '%s' as dummy house.", GetCollectibleInfo(suggested)))
-      else
-        d("House Hotbar: No unowned dummy house available. Please set one manually.")
-      end
-    end
-
-    saved = ZO_SavedVars:New("HouseHotbar_Saved", 1, nil, {
-        slots = {},
-        returnHouseId = nil
-    })
-
-    EVENT_MANAGER:RegisterForEvent("HouseHotbar", EVENT_PLAYER_ACTIVATED, function()
-    if not HouseHotbar._isReturning then return end
-
-    local zoneId = GetZoneId(GetUnitZoneIndex("player"))
-    local currentCollectible = GetCurrentZoneHouseId()
-    local expected = HouseHotbar.saved.returnHouseId
-
-    if currentCollectible == expected then
-        -- Exit the house immediately
-        HouseHotbar._isReturning = false
-        d("[HouseHotbar] Returning to original location...")
-        JumpToHouse(HOUSE_EXIT_LOCATION)
-    end
-    end)
-
-
-
-    -- Create default slots
-    for i = 1, 7 do
-        if saved.slots[i] == nil then
-            saved.slots[i] = nil
-        end
-    end
-
-    HouseHotbar.CreateSettingsMenu()
-
-    HouseHotbar.saved = saved
-
-    HouseHotbar.saved = ZO_SavedVars:New("HouseHotbarSaved", 1, nil, {
-      houseAssignments = {},       -- [1] to [7] = collectibleId
-      returnHouseId = nil,
-    })
 end
 
 local function GetHouseDropdownChoices()
@@ -183,6 +180,21 @@ function HouseHotbar.CreateSettingsMenu()
                 end
             end,
         })
+        -- Checkbox for interior vs. exterior
+        table.insert(options, {
+            type = "checkbox",
+            name = "Use Exterior",
+            tooltip = "If checked, you'll travel to the outside of the house.",
+            getFunc = function()
+                local data = HouseHotbar.saved.houseAssignments[i]
+                return data and data.useExterior or false
+            end,
+            setFunc = function(value)
+                HouseHotbar.saved.houseAssignments[i] = HouseHotbar.saved.houseAssignments[i] or {}
+                HouseHotbar.saved.houseAssignments[i].useExterior = value
+            end,
+            width = "half",
+        })
     end
 
 -- Dummy house picker
@@ -252,9 +264,13 @@ function HouseHotbar.OpenRadialMenu()
     HouseRadialMenu:SetHidden(false)
     ZO_RadialMenu:Clear()
 
-    local function teleportToCollectible(id)
+    local function teleportToCollectible(assignment, id)
         if IsCollectibleUnlocked(id) then
-            UseCollectible(id)
+            if assignment.useExterior and CanJumpToCollectibleOutside(id) then
+              JumpToCollectibleOutside(id)
+          else
+              JumpToCollectibleHouse(id)
+          end
         else
             d("House is not unlocked.")
         end
