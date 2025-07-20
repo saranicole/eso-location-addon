@@ -1,9 +1,1 @@
-<Bindings>
-  <Layer name="SI_KEYBINDINGS_CATEGORY_GENERAL">
-    <Category name="House Hotbar">
-      <Action name="HOUSE_OPEN_MENU">
-        <Down>HouseHotbar.OpenRadialMenu()</Down>
-      </Action>
-    </Category>
-  </Layer>
-</Bindings>
+
