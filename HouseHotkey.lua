@@ -21,8 +21,7 @@ HH.Default = {
 
 HH.HouseData = {
   ownedHouses = {},
-  ownedHouseNames = {},
-  ownedHouseIds = {},
+  ownedHouseItems = {},
   totalOwnedHouses = 0,
 }
 
@@ -154,13 +153,13 @@ HH.IconList = {
 function HH.Icon2Text(Table)
   local Tep = {}
   for i = 1, #Table do
-    Tep[i] = "|t32:32:"..Table[i].."|t"
+    Tep[i] = { name = "|t32:32:"..Table[i].."|t", value = Table[i] }
   end
   return Tep
 end
 
 function HH.GetHouseDropdownChoices()
-    local collectibleData = ZO_COLLECTIBLE_DATA_MANAGER:GetAllCollectibleDataObjects()
+    local collectibleData = ZO_COLLECTIBLE_DATA_MANAGER:GetAllCollectibleDataObjects({ ZO_CollectibleCategoryData.IsHousingCategory }, { ZO_CollectibleData.IsUnlocked })
     local ownedHouseCounter = 0
 
     for _, entry in ipairs(collectibleData) do
@@ -168,16 +167,10 @@ function HH.GetHouseDropdownChoices()
             local referenceId = entry:GetReferenceId()
             if (not entry:IsLocked()) then
               local houseEntry = {
-                  icon = entry:GetIcon(),
-                  id = referenceId,
-                  location = entry:GetFormattedHouseLocation(),
-                  name = entry:GetFormattedName(),
-                  owned = not entry:IsLocked(),
-                  primary = entry:IsPrimaryResidence(),
+                name = entry:GetFormattedName(), value = referenceId
               }
               HH.HouseData.ownedHouses[tostring(referenceId)] = houseEntry.name
-              table.insert(HH.HouseData.ownedHouseNames, houseEntry.name)
-              table.insert(HH.HouseData.ownedHouseIds, houseEntry.id)
+              table.insert(HH.HouseData.ownedHouseItems, houseEntry)
               ownedHouseCounter = ownedHouseCounter + 1
             end
         end
@@ -186,125 +179,116 @@ function HH.GetHouseDropdownChoices()
 end
 
 --Menu Part
-local LAM = LibAddonMenu2
+
+if not LibHarvensAddonSettings then
+    d("LibHarvensAddonSettings is required!")
+    return
+end
+
+local LAM = LibHarvensAddonSettings
 function HH.BuildMenu()
-  --Panel Part
-  local panelData = {
-    type = "panel",
-    name = HH.Name,
-    displayName = HH.Name,
-    author = HH.Author,
-    version = HH.Version,
-    registerForRefresh = true,
-	}
-	LAM:RegisterAddonPanel(HH.Name.."_Options", panelData)
+
+  local panel = LAM:AddAddon(HH.Name, {
+    allowDefaults = true,  -- Show "Reset to Defaults" button
+    allowRefresh = true    -- Enable automatic control updates
+  })
   
   --Option Part
   local Category, EntryIndex, Icon, IconCustom, Name, House, Status
   local Category2, EntryIndex2
   local options = {
     {
-    type = "checkbox",
-    name = HH.Lang.CHARACTER_SETTING,
-    getFunc = function() return HH.CV.CV end,
-    setFunc = function(var)
+    type = LAM.ST_CHECKBOX,
+    label = HH.Lang.CHARACTER_SETTING,
+    getFunction = function() return HH.CV.CV end,
+    setFunction = function(var)
       HH.CV.CV = var
       HH.SwitchSV()
-    end,
-    width = "full",
+    end
     },
     --Create QuickSlot
     {
-    type = "header",
-    name = HH.Lang.CREATE_QUICKSLOT,
+    type = LAM.ST_SECTION,
+    label = HH.Lang.CREATE_QUICKSLOT,
     },
     --Category
     {
-    type = "dropdown",
-    name = HH.Lang.WHEEL_CATEGORY,
-    choices = {
-      GetString(SI_HOTBARCATEGORY10),
-      GetString(SI_HOTBARCATEGORY13),
-      GetString(SI_HOTBARCATEGORY12),
-      GetString(SI_HOTBARCATEGORY14),
-      GetString(SI_HOTBARCATEGORY11),
+    type = LAM.ST_DROPDOWN,
+    label = HH.Lang.WHEEL_CATEGORY,
+    items = {
+      { name = GetString(SI_HOTBARCATEGORY10), value = HOTBAR_CATEGORY_QUICKSLOT_WHEEL},
+      { name = GetString(SI_HOTBARCATEGORY13), value = HOTBAR_CATEGORY_ALLY_WHEEL},
+      { name = GetString(SI_HOTBARCATEGORY12), value = HOTBAR_CATEGORY_MEMENTO_WHEEL},
+      { name = GetString(SI_HOTBARCATEGORY14), value = HOTBAR_CATEGORY_TOOL_WHEEL},
+      { name = GetString(SI_HOTBARCATEGORY11), value = HOTBAR_CATEGORY_EMOTE_WHEEL},
     },
-    choicesValues = {
-      HOTBAR_CATEGORY_QUICKSLOT_WHEEL,
-      HOTBAR_CATEGORY_ALLY_WHEEL,
-      HOTBAR_CATEGORY_MEMENTO_WHEEL,
-      HOTBAR_CATEGORY_TOOL_WHEEL,
-      HOTBAR_CATEGORY_EMOTE_WHEEL,
-    },
-    getFunc = function() return Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL end,
-    setFunc = function(var) Category = var end,
+    getFunction = function() return Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL end,
+    setFunction = function(var) Category = var end,
     width = "half",
     },
     --Index
     {
-    type = "dropdown",
-    name = HH.Lang.WHEEL_SLOT,
-    choices = {"1 - N", "2 - NW", "3 - W", "4 - SW", "5 - S", "6 - SE", "7 - E", "8 - NE"},
-    choicesValues = {4, 3, 2, 1, 8, 7, 6, 5},
-    getFunc = function() return EntryIndex or 4 end,
-    setFunc = function(var) EntryIndex = var end,
-    width = "half",
+    type = LAM.ST_DROPDOWN,
+    label = HH.Lang.WHEEL_SLOT,
+    items = {
+      { name = "1 - N", value = 4 },
+      { name = "2 - NW", value = 3 },
+      { name = "3 - W", value = 2 },
+      { name = "4 - SW", value = 1 },
+      { name = "5 - S", value = 8 },
+      { name = "6 - SE", value = 7 },
+      { name = "7 - E", value = 6 },
+      { name = "8 - NE", value = 5 },
+    }
+    getFunction = function() return EntryIndex or 4 end,
+    setFunction = function(var) EntryIndex = var end,
     },
     --Icon Select
     {
-    type = "dropdown",
-    name = HH.Lang.WHEEL_ICON,
-    choices = HH.Icon2Text(HH.IconList),
-    choicesValues = HH.IconList,
-    getFunc = function() return Icon or HH.IconList[1] end,
-    setFunc = function(var) Icon = var end,
-    scrollable = true,
-    width = "half",
+    type = LAM.ST_DROPDOWN,
+    label = HH.Lang.WHEEL_ICON,
+    items = HH.Icon2Text(HH.IconList),
+    getFunction = function() return Icon or HH.IconList[1] end,
+    setFunction = function(var) Icon = var end,
     },
     --Icon Custom
     {
-    type = "editbox",
-    name = HH.Lang.WHEEL_ICON_CUSTOM,
+    type = LAM.ST_EDIT,
+    label = HH.Lang.WHEEL_ICON_CUSTOM,
     tooltip = HH.Lang.WHEEL_ICON_CUSTOM_TOOLTIP,
-    getFunc = function() return IconCustom or "" end,
-    setFunc = function(text) IconCustom = text end,
-    isMultiline = false,
-    width = "half",
+    getFunction = function() return IconCustom or "" end,
+    setFunction = function(text) IconCustom = text end,
     },
     --Name
     {
-    type = "editbox",
+    type = LAM.ST_EDIT,
     name = HH.Lang.WHEEL_NAME,
-    getFunc = function() return Name or "" end,
-    setFunc = function(text) Name = text end,
-    isMultiline = false,
-    width = "full",
+    getFunction = function() return Name or "" end,
+    setFunction = function(text) Name = text end,
     },
     --House Choice
     {
-    type = "dropdown",
+    type = LAM.ST_DROPDOWN,
     name = "House",
-    choices = HH.HouseData.ownedHouseNames,
-    choicesValues = HH.HouseData.ownedHouseIds,
-    getFunc = function() return House or "" end,
-    setFunc = function(var) House = var end,
-    width = "full",
+    items = HH.HouseData.ownedHouseItems,
+    getFunction = function() return House or "" end,
+    setFunction = function(var) House = var end,
     },
     --Jump to Interior or Exterior
     {
-    type = "checkbox",
-    name = "Jump to Outside of House",
-    getFunc = function() return UseExterior or false end,
-    setFunc = function(var)
+    type = LAM.ST_CHECKBOX,
+    label = "Jump to Outside of House",
+    getFunction = function() return UseExterior or false end,
+    setFunction = function(var)
       UseExterior = var
     end,
-    width = "half",
     },
     --Apply
     {
-    type = "button",
-    name = HH.Lang.WHEEL_APPLY,
-    func = function()
+    type = LAM.ST_BUTTON,
+    label = HH.Lang.WHEEL_APPLY,
+    buttonText = HH.Lang.WHEEL_APPLY,
+    clickHandler  = function()
       if not Name or Name == "" then
         Status = HH.Lang.STATUS_NO_NAME
       else
@@ -329,22 +313,21 @@ function HH.BuildMenu()
         Status = HH.Lang.STATUS_ADDED
       end
     end,
-    width = "half",
     },
     --Status
     {
-		type = "description",
-		title = function() return Status or " " end,
-    text = HH.Lang.WHEEL_INFO
+		type = LAM.ST_LABEL,
+		label = function() return Status or " " end,
+    tooltip  = HH.Lang.WHEEL_INFO
     },
     {
-    type = "header",
-    name = HH.Lang.WHEEL_DESC,
+    type = LAM.ST_SECTION,
+    label = HH.Lang.WHEEL_DESC,
     },
     {
     --Description
-		type = "description",
-    text = function()
+		type = LAM.ST_LABEL,
+    label = function()
       local Positons = {"1 - N    ", "2 - NW", "3 - W   ", "4 - SW", "5 - S    ", "6 - SE  ", "7 - E    ", "8 - NE "}
       local Order = {4, 3, 2, 1, 8, 7, 6, 5}
       local Part = function(Index)
@@ -372,61 +355,60 @@ function HH.BuildMenu()
     end,
     },
     {
-    type = "header",
-    name = HH.Lang.WHEEL_EDIT,
+    type = LAM.ST_SECTION,
+    label = HH.Lang.WHEEL_EDIT,
     },
     --Category
     {
-    type = "dropdown",
-    name = HH.Lang.WHEEL_CATEGORY,
-    choices = {
-      GetString(SI_HOTBARCATEGORY10),
-      GetString(SI_HOTBARCATEGORY13),
-      GetString(SI_HOTBARCATEGORY12),
-      GetString(SI_HOTBARCATEGORY14),
-      GetString(SI_HOTBARCATEGORY11),
+    type = LAM.ST_DROPDOWN,
+    label = HH.Lang.WHEEL_CATEGORY,
+    items = {
+      { name = GetString(SI_HOTBARCATEGORY10), value = HOTBAR_CATEGORY_QUICKSLOT_WHEEL},
+      { name = GetString(SI_HOTBARCATEGORY13), value = HOTBAR_CATEGORY_ALLY_WHEEL},
+      { name = GetString(SI_HOTBARCATEGORY12), value = HOTBAR_CATEGORY_MEMENTO_WHEEL},
+      { name = GetString(SI_HOTBARCATEGORY14), value = HOTBAR_CATEGORY_TOOL_WHEEL},
+      { name = GetString(SI_HOTBARCATEGORY11), value = HOTBAR_CATEGORY_EMOTE_WHEEL},
     },
-    choicesValues = {
-      HOTBAR_CATEGORY_QUICKSLOT_WHEEL,
-      HOTBAR_CATEGORY_ALLY_WHEEL,
-      HOTBAR_CATEGORY_MEMENTO_WHEEL,
-      HOTBAR_CATEGORY_TOOL_WHEEL,
-      HOTBAR_CATEGORY_EMOTE_WHEEL,
-    },
-    getFunc = function() return Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL end,
-    setFunc = function(var) Category2 = var end,
-    width = "half",
+    getFunction = function() return Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL end,
+    setFunction = function(var) Category2 = var end,
     },
     --Index
     {
-    type = "dropdown",
-    name = HH.Lang.WHEEL_SLOT,
-    choices = {"1 - N", "2 - NW", "3 - W", "4 - SW", "5 - S", "6 - SE", "7 - E", "8 - NE"},
-    choicesValues = {4, 3, 2, 1, 8, 7, 6, 5},
-    getFunc = function() return EntryIndex2 or 4 end,
-    setFunc = function(var) EntryIndex2 = var end,
-    width = "half",
+    type = LAM.ST_DROPDOWN,
+    label = HH.Lang.WHEEL_SLOT,
+    items = {
+      { name = "1 - N", value = 4 },
+      { name = "2 - NW", value = 3 },
+      { name = "3 - W", value = 2 },
+      { name = "4 - SW", value = 1 },
+      { name = "5 - S", value = 8 },
+      { name = "6 - SE", value = 7 },
+      { name = "7 - E", value = 6 },
+      { name = "8 - NE", value = 5 },
+    }
+    getFunction = function() return EntryIndex2 or 4 end,
+    setFunction = function(var) EntryIndex2 = var end,
     },
     --Empty
     {
-    type = "button",
-    name = HH.Lang.WHEEL_EMPTY,
-    func = function()
+    type = LAM.ST_BUTTON,
+    label = HH.Lang.WHEEL_EMPTY,
+    buttonText = HH.Lang.WHEEL_EMPTY,
+    clickHandler = function()
       HH.SV.Command[Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL] = {}
     end,
-    width = "half",
     },
     --Delete
     {
-    type = "button",
-    name = HH.Lang.WHEEL_DELETE,
-    func = function()
+    type = LAM.ST_BUTTON,
+    label = HH.Lang.WHEEL_DELETE,
+    buttonText = HH.Lang.WHEEL_DELETE,
+    clickHandler = function()
       HH.SV.Command[Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex2 or 4] = nil
     end,
-    width = "half",
     },
   }
-  LAM:RegisterOptionControls(HH.Name.."_Options", options)
+  local controls = panel:AddSettings(options)
 end
 
 -- Start Here
