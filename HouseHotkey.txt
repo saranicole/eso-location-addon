@@ -4,7 +4,7 @@
 ## APIVersion: 101045
 ## AddOnVersion: 1
 ## SavedVariables: HouseHotkey_Vars
-## DependsOn: LibAddonMenu-2.0>=32
+## DependsOn: LibHarvensAddonSettings
 
 HouseHotkey.lua
 en.lua
