@@ -253,7 +253,7 @@ function HH.BuildMenu()
   --Option Part
   local Category, CategoryName, EntryIndex, EntryIndexName, Icon, IconName, Name, House, HouseName, HouseId, HouseOwner
   local Category2, CategoryName2, EntryIndex2, EntryIndexName2
-  local options = {
+  panel:AddSetting(
     {
     type = LAM.ST_CHECKBOX,
     label = HH.Lang.CHARACTER_SETTING,
@@ -262,13 +262,13 @@ function HH.BuildMenu()
       HH.CV.CV = var
       HH.SwitchSV()
     end
-    },
+    })
     --Create QuickSlot
-    {
+    panel:AddSetting({
     type = LAM.ST_SECTION,
     label = HH.Lang.CREATE_QUICKSLOT,
-    }
-  }
+    })
+
   panel:AddSettings(options)
   panel:AddSetting(
     --Category
