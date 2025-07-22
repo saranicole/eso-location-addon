@@ -1,5 +1,5 @@
-## Title: House and Location Hotkey
-## Author: Sara Jarjoura
+## Title: House Hotkey
+## Author: @thisbeaurielle
 ## Version: 1.0.0
 ## APIVersion: 101042
 ## AddOnVersion: 1
