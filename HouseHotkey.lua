@@ -72,7 +72,7 @@ function HH.HookWheel()
       local Old = UTILITY_WHEEL_GAMEPAD.menu.AddEntry
       UTILITY_WHEEL_GAMEPAD.menu.AddEntry = function(Self, name, inactiveIcon, activeIcon, callback, data)
         local Category = UTILITY_WHEEL_GAMEPAD:GetHotbarCategory()
-        local Index = data.slotNum
+        local Index = tonumber(data.slotNum)
         local New = HH.SV.Command[Category][Index]
         if New then
           Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior, New.houseOwner) end, {name = New.name, slotNum = Index})
@@ -85,7 +85,7 @@ function HH.HookWheel()
     local Old = UTILITY_WHEEL_KEYBOARD.menu.AddEntry
     UTILITY_WHEEL_KEYBOARD.menu.AddEntry = function(Self, name, inactiveIcon, activeIcon, callback, data)
       local Category = UTILITY_WHEEL_KEYBOARD:GetHotbarCategory()
-      local Index = data.slotNum
+      local Index = tonumber(data.slotNum)
       local New = HH.SV.Command[Category][Index]
       if New then
         Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior, New.houseOwner) end, {name = New.name, slotNum = Index})
@@ -290,7 +290,7 @@ function HH.BuildMenu()
     getFunction = function() return CategoryName or GetString(SI_HOTBARCATEGORY10) end,
     setFunction = function(var, itemName, itemData)
       CategoryName = itemName
-      Category = itemData.data
+      Category = tonumber(itemData.data)
     end,
     default = GetString(SI_HOTBARCATEGORY10),
     },
@@ -311,7 +311,7 @@ function HH.BuildMenu()
     getFunction = function() return EntryIndexName or "1 - N" end,
     setFunction = function(var, itemName, itemData)
       EntryIndexName = itemName
-      EntryIndex = itemData.data
+      EntryIndex = tonumber(itemData.data)
     end,
     default = "1 - N",
     },
@@ -345,7 +345,7 @@ function HH.BuildMenu()
     end,
     setFunction = function(control, itemName, itemData)
       HouseName = itemName
-      HouseId = itemData.data.id
+      HouseId = tonumber(itemData.data.id)
       HouseOwner = itemData.data.owner
     end,
     default = ""
@@ -376,8 +376,8 @@ function HH.BuildMenu()
       end
       HH.SV.Command[Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex or 4] = {
         ["name"] = Name or "",
-        ["icon"] = tostring(Tex),
-        ["house"] = HouseId or "",
+        ["icon"] = Tex,
+        ["house"] = tonumber(HouseId),
         ["exterior"] = UseExterior or false,
         ["houseName"] = HouseName or "",
         ["houseOwner"] = HouseOwner or "self",
@@ -405,7 +405,7 @@ function HH.BuildMenu()
     getFunction = function() return CategoryName2 or GetString(SI_HOTBARCATEGORY10) end,
     setFunction = function(var, itemName, itemData)
       CategoryName2 = itemName
-      Category2 = itemData.data
+      Category2 = tonumber(itemData.data)
     end,
     default = GetString(SI_HOTBARCATEGORY10),
     },
@@ -426,7 +426,7 @@ function HH.BuildMenu()
     getFunction = function() return EntryIndexName2 or "1 - N" end,
     setFunction = function(var, itemName, itemData)
       EntryIndexName2 = itemName
-      EntryIndex2 = itemData.data
+      EntryIndex2 = tonumber(itemData.data)
       end,
     default = "1 - N"
     },
