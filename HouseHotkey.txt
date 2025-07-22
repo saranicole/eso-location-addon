@@ -1,5 +1,5 @@
 ## Title: House Hotkey
-## Author: Sara Jarjoura
+## Author: @thisbeaurielle
 ## Version: 1.0.0
 ## APIVersion: 101045
 ## AddOnVersion: 1
