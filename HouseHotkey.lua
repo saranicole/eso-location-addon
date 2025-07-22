@@ -201,10 +201,6 @@ end
 
 local LAM = LibHarvensAddonSettings
 
-function HH.GetStatus()
-  return HH.Part(HOTBAR_CATEGORY_TOOL_WHEEL)
-end
-
 function HH.BuildMenu()
 
   local houseItems = HH.GetHouseDropdownChoices()
@@ -235,6 +231,7 @@ function HH.BuildMenu()
   --Option Part
   local Category, CategoryName, EntryIndex, EntryIndexName, Icon, IconName, Name, House, HouseName, HouseId, Status
   local Category2, CategoryName2, EntryIndex2, EntryIndexName2
+  
   local options = {
     {
     type = LAM.ST_CHECKBOX,
