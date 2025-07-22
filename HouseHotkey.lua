@@ -359,7 +359,7 @@ function HH.BuildMenu()
       UseExterior = var
     end,
     default = false
-    }
+    })
     --Apply
   panel:AddSetting({
     type = LAM.ST_BUTTON,
