@@ -1,10 +1,10 @@
 ## Title: House Hotkey
 ## Author: @thisbeaurielle
 ## Version: 1.0.0
-## APIVersion: 101042
+## APIVersion: 101045
 ## AddOnVersion: 1
-## SavedVariables: HouseWheel_Saved
-## DependsOn: LibAddonMenu-2.0
+## SavedVariables: HouseHotkey_Vars
+## DependsOn: LibHarvensAddonSettings
 
-Bindings.xml
 HouseHotkey.lua
+en.lua
