@@ -316,17 +316,17 @@ function HH.BuildMenu()
     default = "1 - N",
     },
     --Icon Select
-    {
-    type = LAM.ST_DROPDOWN,
-    label = HH.Lang.WHEEL_ICON,
-    items = HH.Icon2Text(HH.IconList),
-    getFunction = function() return IconName or "/esoui/art/collections/collections_tabicon_housing_up.dds"  end,
-    setFunction = function(var, itemName, itemData)
-      IconName = itemName
-      Icon = itemData.data
-      end,
-    default = "|t32:32:/esoui/art/collections/collections_tabicon_housing_up.dds|t"
-    },
+--     {
+--     type = LAM.ST_DROPDOWN,
+--     label = HH.Lang.WHEEL_ICON,
+--     items = HH.Icon2Text(HH.IconList),
+--     getFunction = function() return IconName or "/esoui/art/collections/collections_tabicon_housing_up.dds"  end,
+--     setFunction = function(var, itemName, itemData)
+--       IconName = itemName
+--       Icon = itemData.data
+--       end,
+--     default = "|t32:32:/esoui/art/collections/collections_tabicon_housing_up.dds|t"
+--     },
     --Name
     {
     type = LAM.ST_EDIT,
@@ -368,12 +368,12 @@ function HH.BuildMenu()
     label = HH.Lang.WHEEL_APPLY,
     buttonText = HH.Lang.WHEEL_APPLY,
     clickHandler  = function()
-      local Tex
-      if Icon then
-        Tex = Icon
-      else
-        Tex = HH.IconList[1]
-      end
+      local Tex = "/esoui/art/collections/collections_tabicon_housing_up.dds"
+--       if Icon then
+--         Tex = Icon
+--       else
+--         Tex = HH.IconList[1]
+--       end
       HH.SV.Command[Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex or 4] = {
         ["name"] = Name or "",
         ["icon"] = Tex,
