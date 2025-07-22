@@ -67,29 +67,32 @@ function HH.SwitchSV()
 end
 
 function HH.HookWheel()
-  --PC Part
-  local Old = UTILITY_WHEEL_KEYBOARD.menu.AddEntry
-  UTILITY_WHEEL_KEYBOARD.menu.AddEntry = function(Self, name, inactiveIcon, activeIcon, callback, data)
-    local Category = UTILITY_WHEEL_KEYBOARD:GetHotbarCategory()
-    local Index = data.slotNum
-    local New = HH.SV.Command[Category][Index]
-    if New then
-      Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior, New.houseOwner) end, {name = New.name, slotNum = Index})
-    else
-      Old(Self, name, inactiveIcon, activeIcon, callback, data)
+  if IsInGamepadPreferredMode() then
+      --GamePad Part
+      local Old = UTILITY_WHEEL_GAMEPAD.menu.AddEntry
+      UTILITY_WHEEL_GAMEPAD.menu.AddEntry = function(Self, name, inactiveIcon, activeIcon, callback, data)
+        local Category = UTILITY_WHEEL_GAMEPAD:GetHotbarCategory()
+        local Index = data.slotNum
+        local New = HH.SV.Command[Category][Index]
+        if New then
+          Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior, New.houseOwner) end, {name = New.name, slotNum = Index})
+        else
+          Old(Self, name, inactiveIcon, activeIcon, callback, data)
+        end
+      end
+  else
+    --PC Part
+    local Old = UTILITY_WHEEL_KEYBOARD.menu.AddEntry
+    UTILITY_WHEEL_KEYBOARD.menu.AddEntry = function(Self, name, inactiveIcon, activeIcon, callback, data)
+      local Category = UTILITY_WHEEL_KEYBOARD:GetHotbarCategory()
+      local Index = data.slotNum
+      local New = HH.SV.Command[Category][Index]
+      if New then
+        Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior, New.houseOwner) end, {name = New.name, slotNum = Index})
+      else
+        Old(Self, name, inactiveIcon, activeIcon, callback, data)
+      end
     end
-  end
-  --GamePad Part
-  UTILITY_WHEEL_GAMEPAD.menu.AddEntry = function(Self, name, inactiveIcon, activeIcon, callback, data)
-    local Category = UTILITY_WHEEL_GAMEPAD:GetHotbarCategory()
-    local Index = data.slotNum
-    local New = HH.SV.Command[Category][Index]
-    if New then
-      Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior, New.houseOwner) end, {name = New.name, slotNum = Index})
-    else
-      Old(Self, name, inactiveIcon, activeIcon, callback, data)
-    end
-  end
 end
 
 -- /script HouseHotkey.Execute()
@@ -373,7 +376,7 @@ function HH.BuildMenu()
       HH.SV.Command[Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex or 4] = {
         ["name"] = Name or "",
         ["icon"] = tostring(Tex),
-        ["house"] = tostring(HouseId) or "",
+        ["house"] = HouseId or "",
         ["exterior"] = UseExterior or false,
         ["houseName"] = HouseName or "",
         ["houseOwner"] = HouseOwner or "self",
