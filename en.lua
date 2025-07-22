@@ -7,6 +7,7 @@ HH.Lang = {
   HOUSE_EXTERIOR =            "Jump to Outside of House",
   HOUSE_INSIDE =              "Inside",
   HOUSE_OUTSIDE =             "Outside",
+  HOUSE_INSIDE_ONLY =         "Inside Only",
   WHEEL_CATEGORY =            "Wheel Category",
   WHEEL_SLOT =                "Slot",
   WHEEL_ICON =                "Preset Icons",

@@ -46,12 +46,15 @@ local function OnAddOnLoaded(eventCode, addonName)
   --Hook Wheels
   HH.HookWheel()
 
-  --Populate Houses
-  HH.GetHouseDropdownChoices()
+end
 
-  --Menu
-  HH.BuildMenu()
-
+local function OnPlayerActivated(eventCode)
+    EVENT_MANAGER:UnregisterForEvent("HouseHotkey_PlayerActivated", EVENT_PLAYER_ACTIVATED)
+    local currentSearchState = HOUSE_TOURS_SEARCH_MANAGER:GetSearchState(HOUSE_TOURS_LISTING_TYPE_FAVORITE)
+    if currentSearchState ~= ZO_HOUSE_TOURS_SEARCH_STATES.COMPLETE then
+        HOUSE_TOURS_SEARCH_MANAGER:ExecuteSearch(HOUSE_TOURS_LISTING_TYPE_FAVORITE)
+    end
+    zo_callLater(HH.BuildMenu, 3000)
 end
 
 --Account/Character Setting
@@ -71,7 +74,7 @@ function HH.HookWheel()
     local Index = data.slotNum
     local New = HH.SV.Command[Category][Index]
     if New then
-      Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior) end, {name = New.name, slotNum = Index})
+      Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior, New.houseOwner) end, {name = New.name, slotNum = Index})
     else
       Old(Self, name, inactiveIcon, activeIcon, callback, data)
     end
@@ -82,7 +85,7 @@ function HH.HookWheel()
     local Index = data.slotNum
     local New = HH.SV.Command[Category][Index]
     if New then
-      Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior) end, {name = New.name, slotNum = Index})
+      Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior, New.houseOwner) end, {name = New.name, slotNum = Index})
     else
       Old(Self, name, inactiveIcon, activeIcon, callback, data)
     end
@@ -90,8 +93,12 @@ function HH.HookWheel()
 end
 
 -- /script HouseHotkey.Execute()
-function HH.Execute(Text, Exterior)
-  RequestJumpToHouse(Text, Exterior)
+function HH.Execute(Text, Exterior, HouseOwner)
+  if HouseOwner ~= "self" then
+    JumpToSpecificHouse(HouseOwner, Text)
+  else
+    RequestJumpToHouse(Text, Exterior)
+  end
 end
 
 --Icon
@@ -155,17 +162,29 @@ end
 function HH.GetHouseDropdownChoices()
     local collectibleData = ZO_COLLECTIBLE_DATA_MANAGER:GetAllCollectibleDataObjects({ ZO_CollectibleCategoryData.IsHousingCategory }, { ZO_CollectibleData.IsUnlocked })
     local ownedHouseItems = {}
-
+    local counter = 0
+    -- Owned houses
     for index, entry in ipairs(collectibleData) do
         if (entry:IsHouse()) then
             local referenceId = entry:GetReferenceId()
             if (not entry:IsLocked()) then
               local houseEntry = {
-                name = entry:GetFormattedName(), data = referenceId
+                name = entry:GetFormattedName(), data = { owner = "self", id = referenceId}
               }
               ownedHouseItems[index] = houseEntry
+              counter = counter + 1
             end
         end
+    end
+
+    --Favorite Houses
+    local favoriteHouses = {}
+    favoriteHouses = HOUSE_TOURS_SEARCH_MANAGER:GetSearchResults(HOUSE_TOURS_LISTING_TYPE_FAVORITE)
+    for index, entry in ipairs(favoriteHouses) do
+      local houseEntry = {
+        name = "[FAV] "..entry:GetHouseName(), data = { owner = entry:GetOwnerDisplayName(), id = entry:GetHouseId() }
+      }
+      ownedHouseItems[counter + index] = houseEntry
     end
   return ownedHouseItems
 end
@@ -179,12 +198,19 @@ function HH.Part(Index)
 
     for k, v in ipairs(Order) do
       local Content = HH.SV.Command[Index][v]
+      local owner = " "
       if Content then
         local InOrOut = HH.Lang.HOUSE_INSIDE
         if Content.exterior then
           InOrOut = HH.Lang.HOUSE_OUTSIDE
         end
-        Tep = Tep..Positons[k].."  |t16:16:"..tostring(Content.icon).."|t  "..Content.name.." |c778899( "..Content.houseName.." )|  "..InOrOut.."|r\r\n  "
+        if Content.houseOwner ~= "self" then
+          owner = Content.houseOwner
+          InOrOut = HH.Lang.HOUSE_INSIDE_ONLY
+        else
+          owner = " "
+        end
+        Tep = Tep..Positons[k].."  |t16:16:"..tostring(Content.icon).."|t  "..Content.name.." |c778899( "..Content.houseName.." )|  "..InOrOut.."|  "..owner.."|r\r\n  "
       end
     end
   end
@@ -229,9 +255,8 @@ function HH.BuildMenu()
   })
   
   --Option Part
-  local Category, CategoryName, EntryIndex, EntryIndexName, Icon, IconName, Name, House, HouseName, HouseId, Status
+  local Category, CategoryName, EntryIndex, EntryIndexName, Icon, IconName, Name, House, HouseName, HouseId, HouseOwner
   local Category2, CategoryName2, EntryIndex2, EntryIndexName2
-  
   local options = {
     {
     type = LAM.ST_CHECKBOX,
@@ -316,7 +341,8 @@ function HH.BuildMenu()
     end,
     setFunction = function(control, itemName, itemData)
       HouseName = itemName
-      HouseId = itemData.data
+      HouseId = itemData.data.id
+      HouseOwner = itemData.data.owner
     end,
     default = ""
     },
@@ -350,6 +376,7 @@ function HH.BuildMenu()
         ["house"] = tostring(HouseId) or "",
         ["exterior"] = UseExterior or false,
         ["houseName"] = HouseName or "",
+        ["houseOwner"] = HouseOwner or "self",
       }
       panel:UpdateControls()
     end
@@ -425,3 +452,4 @@ end
 
 -- Start Here
 EVENT_MANAGER:RegisterForEvent(HH.Name, EVENT_ADD_ON_LOADED, OnAddOnLoaded)
+EVENT_MANAGER:RegisterForEvent("HouseHotkey_PlayerActivated", EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
