@@ -176,7 +176,7 @@ function HH.GetHouseDropdownChoices()
             end
         end
     end
-  
+
     --Favorite Houses
     local favoriteHouses = {}
     favoriteHouses = HOUSE_TOURS_SEARCH_MANAGER:GetSearchResults(HOUSE_TOURS_LISTING_TYPE_FAVORITE)
@@ -198,15 +198,19 @@ function HH.Part(Index)
 
     for k, v in ipairs(Order) do
       local Content = HH.SV.Command[Index][v]
+      local owner = " "
       if Content then
         local InOrOut = HH.Lang.HOUSE_INSIDE
         if Content.exterior then
           InOrOut = HH.Lang.HOUSE_OUTSIDE
         end
         if Content.houseOwner ~= "self" then
+          owner = Content.houseOwner
           InOrOut = HH.Lang.HOUSE_INSIDE_ONLY
+        else
+          owner = " "
         end
-        Tep = Tep..Positons[k].."  |t16:16:"..tostring(Content.icon).."|t  "..Content.name.." |c778899( "..Content.houseName.." )|  "..InOrOut.."|  "..Content.houseOwner.."|r\r\n  "
+        Tep = Tep..Positons[k].."  |t16:16:"..tostring(Content.icon).."|t  "..Content.name.." |c778899( "..Content.houseName.." )|  "..InOrOut.."|  "..owner.."|r\r\n  "
       end
     end
   end
