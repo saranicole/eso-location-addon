@@ -93,6 +93,7 @@ function HH.HookWheel()
         Old(Self, name, inactiveIcon, activeIcon, callback, data)
       end
     end
+  end
 end
 
 -- /script HouseHotkey.Execute()
