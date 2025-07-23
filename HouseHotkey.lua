@@ -328,9 +328,8 @@ function HH.BuildMenu()
       if HouseOwner ~= "self" then
         return HouseOwner or " "
       end
-    return HH.Lang.HOUSE_COLLECTED
-    end,
-    tooltip = HH.Lang.HOUSE_OWNER
+      return HH.Lang.HOUSE_COLLECTED or " "
+    end
   }
   else
     panel:AddSetting {
