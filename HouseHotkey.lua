@@ -276,7 +276,7 @@ function HH.BuildMenu()
       { name = GetString(SI_HOTBARCATEGORY14), data = HOTBAR_CATEGORY_TOOL_WHEEL},
       { name = GetString(SI_HOTBARCATEGORY11), data = HOTBAR_CATEGORY_EMOTE_WHEEL},
     },
-    getFunction = function() return Category or GetString(SI_HOTBARCATEGORY10) end,
+    getFunction = function() return Category or SI_HOTBARCATEGORY10 end,
     setFunction = function(var, itemName, itemData)
       CategoryName = itemName
       Category = tonumber(itemData.data)
@@ -297,7 +297,7 @@ function HH.BuildMenu()
       { name = "7 - E", data = 6 },
       { name = "8 - NE", data = 5 },
     },
-    getFunction = function() return EntryIndex or "1 - N" end,
+    getFunction = function() return EntryIndex or 4 end,
     setFunction = function(var, itemName, itemData)
       EntryIndexName = itemName
       EntryIndex = tonumber(itemData.data)
@@ -330,7 +330,7 @@ function HH.BuildMenu()
     label = HH.Lang.HOUSE,
     items = houseItems,
     getFunction = function()
-      return HouseId or ""
+      return HouseId or 1
     end,
     setFunction = function(control, itemName, itemData)
       HouseName = itemName
@@ -382,7 +382,7 @@ function HH.BuildMenu()
       { name = GetString(SI_HOTBARCATEGORY14), data = HOTBAR_CATEGORY_TOOL_WHEEL},
       { name = GetString(SI_HOTBARCATEGORY11), data = HOTBAR_CATEGORY_EMOTE_WHEEL},
     },
-    getFunction = function() return Category2 or GetString(SI_HOTBARCATEGORY10) end,
+    getFunction = function() return Category2 or SI_HOTBARCATEGORY10 end,
     setFunction = function(var, itemName, itemData)
       CategoryName2 = itemName
       Category2 = tonumber(itemData.data)
@@ -403,7 +403,7 @@ function HH.BuildMenu()
       { name = "7 - E", data = 6 },
       { name = "8 - NE", data = 5 },
     },
-    getFunction = function() return EntryIndex2 or "1 - N" end,
+    getFunction = function() return EntryIndex2 or 4 end,
     setFunction = function(var, itemName, itemData)
       EntryIndexName2 = itemName
       EntryIndex2 = tonumber(itemData.data)
