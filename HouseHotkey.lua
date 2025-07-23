@@ -229,7 +229,7 @@ function HH.BuildMenu()
 
   local panel = LAM:AddAddon(HH.Name, {
     allowDefaults = true,  -- Show "Reset to Defaults" button
-    allowRefresh = false    -- Enable automatic control updates
+    allowRefresh = true    -- Enable automatic control updates
   })
   
   --Option Part
@@ -322,7 +322,7 @@ function HH.BuildMenu()
     label = HH.Lang.WHEEL_NAME,
     getFunction = function() return Name or "" end,
     setFunction = function(text) Name = text end,
-    default = ""
+    default = " "
   }
   --House Choice
   panel:AddSetting {
@@ -330,14 +330,14 @@ function HH.BuildMenu()
     label = HH.Lang.HOUSE,
     items = houseItems,
     getFunction = function()
-      return HouseId or 1
+      return HouseName or " "
     end,
     setFunction = function(control, itemName, itemData)
       HouseName = itemName
       HouseId = tonumber(itemData.data)
       HouseOwner = itemData.owner
     end,
-    default = ""
+    default = " "
   }
   --Jump to Interior or Exterior
   panel:AddSetting {
