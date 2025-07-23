@@ -268,8 +268,6 @@ function HH.BuildMenu()
     type = LAM.ST_SECTION,
     label = HH.Lang.CREATE_QUICKSLOT,
     })
-
-  panel:AddSettings(options)
   panel:AddSetting(
     --Category
     {
