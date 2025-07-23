@@ -232,12 +232,12 @@ function HH.BuildMenu()
     allowRefresh = false    -- Enable automatic control updates
   })
 
-  local configuredHeadline = panel:AddSetting({
+  local configuredHeadline = panel:AddSetting {
     type = LAM.ST_SECTION,
     label = HH.Lang.WHEEL_DESC,
-  })
+  }
 
-  local configuredLabel = panel:AddSetting({
+  local configuredLabel = panel:AddSetting {
 		type = LAM.ST_LABEL,
     label = function()
       return table.concat({
@@ -248,13 +248,12 @@ function HH.BuildMenu()
         HH.Part(HOTBAR_CATEGORY_EMOTE_WHEEL)
       })
     end
-  })
+  }
   
   --Option Part
   local Category, CategoryName, EntryIndex, EntryIndexName, Icon, IconName, Name, House, HouseName, HouseId, HouseOwner
   local Category2, CategoryName2, EntryIndex2, EntryIndexName2
-  panel:AddSetting(
-    {
+  panel:AddSetting {
     type = LAM.ST_CHECKBOX,
     label = HH.Lang.CHARACTER_SETTING,
     getFunction = function() return HH.CV.CV end,
@@ -262,15 +261,14 @@ function HH.BuildMenu()
       HH.CV.CV = var
       HH.SwitchSV()
     end
-    })
-    --Create QuickSlot
-    panel:AddSetting({
+  }
+  --Create QuickSlot
+  panel:AddSetting {
     type = LAM.ST_SECTION,
     label = HH.Lang.CREATE_QUICKSLOT,
-    })
-  panel:AddSetting(
-    --Category
-    {
+  }
+  --Category
+  panel:AddSetting {
     type = LAM.ST_DROPDOWN,
     label = HH.Lang.WHEEL_CATEGORY,
     items = {
@@ -286,10 +284,9 @@ function HH.BuildMenu()
       Category = tonumber(itemData.data)
     end,
     default = GetString(SI_HOTBARCATEGORY10),
-    })
-    --Index
-    panel:AddSetting(
-    {
+  }
+  --Index
+  panel:AddSetting {
     type = LAM.ST_DROPDOWN,
     label = HH.Lang.WHEEL_SLOT,
     items = {
@@ -308,10 +305,9 @@ function HH.BuildMenu()
       EntryIndex = tonumber(itemData.data)
     end,
     default = "1 - N",
-    })
-    panel:AddSetting(
-    --Icon Select
-    {
+  }
+  --Icon Select
+  panel:AddSetting {
     type = LAM.ST_ICONPICKER,
     label = HH.Lang.WHEEL_ICON,
     items = HH.IconList,
@@ -320,20 +316,18 @@ function HH.BuildMenu()
       IconName = iconPath
       Icon = iconIndex
       end,
-    default = 1
-    })
-    panel:AddSetting(
-    --Name
-    {
+    default = 1,
+  }
+  --Name
+  panel:AddSetting {
     type = LAM.ST_EDIT,
     label = HH.Lang.WHEEL_NAME,
     getFunction = function() return Name or "" end,
     setFunction = function(text) Name = text end,
     default = ""
-    })
-    panel:AddSetting(
-    --House Choice
-    {
+  }
+  --House Choice
+  panel:AddSetting {
     type = LAM.ST_DROPDOWN,
     label = HH.Lang.HOUSE,
     items = houseItems,
@@ -346,20 +340,19 @@ function HH.BuildMenu()
       HouseOwner = itemData.data.owner
     end,
     default = ""
-    })
-    --Jump to Interior or Exterior
-    panel:AddSetting(
-    {
+  }
+  --Jump to Interior or Exterior
+  panel:AddSetting {
     type = LAM.ST_CHECKBOX,
     label = HH.Lang.HOUSE_EXTERIOR,
     getFunction = function() return UseExterior or false end,
     setFunction = function(var)
       UseExterior = var
     end,
-    default = false
-    })
-    --Apply
-  panel:AddSetting({
+    default = false,
+  }
+  --Apply
+  panel:AddSetting {
     type = LAM.ST_BUTTON,
     label = HH.Lang.WHEEL_APPLY,
     buttonText = HH.Lang.WHEEL_APPLY,
@@ -374,15 +367,14 @@ function HH.BuildMenu()
       }
       panel:UpdateControls()
     end
-    })
-    --Status
-    panel:AddSetting(
-    {
+  }
+  --Status
+  panel:AddSetting {
     type = LAM.ST_SECTION,
     label = HH.Lang.WHEEL_EDIT,
-    })
-    --Category
-    panel:AddSetting({
+  }
+  --Category
+  panel:AddSetting {
     type = LAM.ST_DROPDOWN,
     label = HH.Lang.WHEEL_CATEGORY,
     items = {
@@ -398,9 +390,9 @@ function HH.BuildMenu()
       Category2 = tonumber(itemData.data)
     end,
     default = GetString(SI_HOTBARCATEGORY10),
-    })
-    --Index
-    panel:AddSetting({
+  }
+  --Index
+  panel:AddSetting {
     type = LAM.ST_DROPDOWN,
     label = HH.Lang.WHEEL_SLOT,
     items = {
@@ -418,10 +410,10 @@ function HH.BuildMenu()
       EntryIndexName2 = itemName
       EntryIndex2 = tonumber(itemData.data)
       end,
-    default = "1 - N"
-    })
-    --Empty
-    panel:AddSetting({
+    default = "1 - N",
+  }
+  --Empty
+  panel:AddSetting {
     type = LAM.ST_BUTTON,
     label = HH.Lang.WHEEL_EMPTY,
     buttonText = HH.Lang.WHEEL_EMPTY,
@@ -429,9 +421,9 @@ function HH.BuildMenu()
       HH.SV.Command[Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL] = {}
       panel:UpdateControls()
     end,
-    })
-    --Delete
-    panel:AddSetting({
+  }
+  --Delete
+  panel:AddSetting {
     type = LAM.ST_BUTTON,
     label = HH.Lang.WHEEL_DELETE,
     buttonText = HH.Lang.WHEEL_DELETE,
@@ -439,7 +431,7 @@ function HH.BuildMenu()
       HH.SV.Command[Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex2 or 4] = nil
       panel:UpdateControls()
     end,
-    })
+  }
 end
 
 -- Start Here
