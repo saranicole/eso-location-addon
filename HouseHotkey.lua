@@ -297,7 +297,7 @@ function HH.BuildMenu()
       { name = "7 - E", data = 6 },
       { name = "8 - NE", data = 5 },
     },
-    getFunction = function() return EntryIndex or 4 end,
+    getFunction = function() return EntryIndexName or "1 - N" end,
     setFunction = function(var, itemName, itemData)
       EntryIndexName = itemName
       EntryIndex = tonumber(itemData.data)
@@ -403,7 +403,7 @@ function HH.BuildMenu()
       { name = "7 - E", data = 6 },
       { name = "8 - NE", data = 5 },
     },
-    getFunction = function() return EntryIndex2 or 4 end,
+    getFunction = function() return EntryIndexName or "1 - N" end,
     setFunction = function(var, itemName, itemData)
       EntryIndexName2 = itemName
       EntryIndex2 = tonumber(itemData.data)
