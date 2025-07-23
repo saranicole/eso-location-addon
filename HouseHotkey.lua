@@ -324,13 +324,14 @@ function HH.BuildMenu()
     setFunction = function(text) Name = text end,
     default = " "
   }
+  if #houseItems > 0 then
   --House Choice
   panel:AddSetting {
     type = LAM.ST_DROPDOWN,
     label = HH.Lang.HOUSE,
     items = houseItems,
     getFunction = function()
-      return HouseName or " "
+      return HouseName
     end,
     setFunction = function(control, itemName, itemData)
       HouseName = itemName
@@ -339,6 +340,12 @@ function HH.BuildMenu()
     end,
     default = " "
   }
+  else
+    panel:AddSetting {
+      type = LAM.ST_LABEL,
+      label = HH.Lang.NO_HOUSES,
+    }
+  end
   --Jump to Interior or Exterior
   panel:AddSetting {
     type = LAM.ST_CHECKBOX,
