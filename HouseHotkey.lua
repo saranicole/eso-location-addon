@@ -98,7 +98,6 @@ end
 
 -- /script HouseHotkey.Execute()
 function HH.Execute(Text, Exterior, HouseOwner)
-  d("In execute")
   if HouseOwner ~= "self" then
     JumpToSpecificHouse(HouseOwner, Text)
   else
@@ -338,7 +337,6 @@ function HH.BuildMenu()
       HouseName = itemName
       HouseId = itemData.data.id
       HouseOwner = itemData.data.owner
-      d(tostring(itemData.data.id))
     end,
   }
   else
