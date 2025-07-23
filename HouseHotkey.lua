@@ -321,6 +321,7 @@ function HH.BuildMenu()
       HouseOwner = itemData.data.owner
       panel:UpdateControls()
     end,
+    default = houseItems[1].name
   }
   panel:AddSetting {
     type = LAM.ST_LABEL,
@@ -448,7 +449,7 @@ function HH.BuildMenu()
     label = HH.Lang.WHEEL_DELETE,
     buttonText = HH.Lang.WHEEL_DELETE,
     clickHandler = function()
-      HH.SV.Command[Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex2 or 4] = nil
+      HH.SV.Command[Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex2] = nil
       panel:UpdateControls()
     end,
   }
