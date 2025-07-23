@@ -39,8 +39,8 @@ local function OnAddOnLoaded(eventCode, addonName)
 	EVENT_MANAGER:UnregisterForEvent(HH.Name, EVENT_ADD_ON_LOADED)
   
   --Get Account/Character Setting
-  HH.AV = ZO_SavedVars:NewAccountWide("HouseHotkey_Vars", 1, nil, HH.Default, GetWorldName())
-  HH.CV = ZO_SavedVars:NewCharacterIdSettings("HouseHotkey_Vars", 1, nil, HH.Default, GetWorldName())
+  HH.AV = ZO_SavedVars:NewAccountWide("HouseHotkey_Vars", 1, nil, HH.Default)
+  HH.CV = ZO_SavedVars:NewCharacterIdSettings("HouseHotkey_Vars", 1, nil, HH.Default)
   HH.SwitchSV()
   
   --Hook Wheels
@@ -68,11 +68,11 @@ end
 
 function HH.HookWheel()
   if IsInGamepadPreferredMode() then
-      d("Gamepad mode detected!")
       --GamePad Part
+      local Old = UTILITY_WHEEL_GAMEPAD.menu.AddEntry
       UTILITY_WHEEL_GAMEPAD.menu.AddEntry = function(Self, name, inactiveIcon, activeIcon, callback, data)
         local Category = UTILITY_WHEEL_GAMEPAD:GetHotbarCategory()
-        local Index = data.slotNum
+        local Index = tonumber(data.slotNum)
         local New = HH.SV.Command[Category][Index]
         if New then
           Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior, New.houseOwner) end, {name = New.name, slotNum = Index})
@@ -85,7 +85,7 @@ function HH.HookWheel()
     local Old = UTILITY_WHEEL_KEYBOARD.menu.AddEntry
     UTILITY_WHEEL_KEYBOARD.menu.AddEntry = function(Self, name, inactiveIcon, activeIcon, callback, data)
       local Category = UTILITY_WHEEL_KEYBOARD:GetHotbarCategory()
-      local Index = data.slotNum
+      local Index = tonumber(data.slotNum)
       local New = HH.SV.Command[Category][Index]
       if New then
         Old(Self, New.name, New.icon, New.icon, function() HH.Execute(New.house, New.exterior, New.houseOwner) end, {name = New.name, slotNum = Index})
@@ -154,14 +154,6 @@ HH.IconList = {
   "/esoui/art/vendor/vendor_tabicon_fence_up.dds",
 }
 
-function HH.Icon2Text(Table)
-  local Tep = {}
-  for i = 1, #Table do
-    Tep[i] = { name = "|t32:32:"..Table[i].."|t", data = Table[i] }
-  end
-  return Tep
-end
-
 function HH.GetHouseDropdownChoices()
     local collectibleData = ZO_COLLECTIBLE_DATA_MANAGER:GetAllCollectibleDataObjects({ ZO_CollectibleCategoryData.IsHousingCategory }, { ZO_CollectibleData.IsUnlocked })
     local ownedHouseItems = {}
@@ -172,7 +164,7 @@ function HH.GetHouseDropdownChoices()
             local referenceId = entry:GetReferenceId()
             if (not entry:IsLocked()) then
               local houseEntry = {
-                name = entry:GetFormattedName(), data = { owner = "self", id = referenceId}
+                name = entry:GetFormattedName(), data = {id = referenceId, owner = "self"}
               }
               ownedHouseItems[index] = houseEntry
               counter = counter + 1
@@ -185,7 +177,7 @@ function HH.GetHouseDropdownChoices()
     favoriteHouses = HOUSE_TOURS_SEARCH_MANAGER:GetSearchResults(HOUSE_TOURS_LISTING_TYPE_FAVORITE)
     for index, entry in ipairs(favoriteHouses) do
       local houseEntry = {
-        name = "[FAV] "..entry:GetHouseName(), data = { owner = entry:GetOwnerDisplayName(), id = entry:GetHouseId() }
+        name = "[FAV] "..entry:GetHouseName(), data = {id = entry:GetHouseId(), owner = entry:GetOwnerDisplayName()}
       }
       ownedHouseItems[counter + index] = houseEntry
     end
@@ -238,13 +230,24 @@ function HH.BuildMenu()
     allowDefaults = true,  -- Show "Reset to Defaults" button
     allowRefresh = false    -- Enable automatic control updates
   })
-
-  local configuredHeadline = panel:AddSetting({
+  
+  --Option Part
+  local Category, CategoryName, EntryIndex, EntryIndexName, Icon, IconName, Name, House, HouseName, HouseId, HouseOwner
+  local Category2, CategoryName2, EntryIndex2, EntryIndexName2
+  panel:AddSetting {
+    type = LAM.ST_CHECKBOX,
+    label = HH.Lang.CHARACTER_SETTING,
+    getFunction = function() return HH.CV.CV end,
+    setFunction = function(var)
+      HH.CV.CV = var
+      HH.SwitchSV()
+    end
+  }
+  panel:AddSetting {
     type = LAM.ST_SECTION,
     label = HH.Lang.WHEEL_DESC,
-  })
-
-  local configuredLabel = panel:AddSetting({
+  }
+  panel:AddSetting {
 		type = LAM.ST_LABEL,
     label = function()
       return table.concat({
@@ -255,28 +258,14 @@ function HH.BuildMenu()
         HH.Part(HOTBAR_CATEGORY_EMOTE_WHEEL)
       })
     end
-  })
-  
-  --Option Part
-  local Category, CategoryName, EntryIndex, EntryIndexName, Icon, IconName, Name, House, HouseName, HouseId, HouseOwner
-  local Category2, CategoryName2, EntryIndex2, EntryIndexName2
-  local options = {
-    {
-    type = LAM.ST_CHECKBOX,
-    label = HH.Lang.CHARACTER_SETTING,
-    getFunction = function() return HH.CV.CV end,
-    setFunction = function(var)
-      HH.CV.CV = var
-      HH.SwitchSV()
-    end
-    },
-    --Create QuickSlot
-    {
+  }
+  --Create QuickSlot
+  panel:AddSetting {
     type = LAM.ST_SECTION,
     label = HH.Lang.CREATE_QUICKSLOT,
-    },
-    --Category
-    {
+  }
+  --Category
+  panel:AddSetting {
     type = LAM.ST_DROPDOWN,
     label = HH.Lang.WHEEL_CATEGORY,
     items = {
@@ -289,12 +278,12 @@ function HH.BuildMenu()
     getFunction = function() return CategoryName or GetString(SI_HOTBARCATEGORY10) end,
     setFunction = function(var, itemName, itemData)
       CategoryName = itemName
-      Category = itemData.data
+      Category = tonumber(itemData.data)
     end,
     default = GetString(SI_HOTBARCATEGORY10),
-    },
-    --Index
-    {
+  }
+  --Index
+  panel:AddSetting {
     type = LAM.ST_DROPDOWN,
     label = HH.Lang.WHEEL_SLOT,
     items = {
@@ -310,88 +299,85 @@ function HH.BuildMenu()
     getFunction = function() return EntryIndexName or "1 - N" end,
     setFunction = function(var, itemName, itemData)
       EntryIndexName = itemName
-      EntryIndex = itemData.data
+      EntryIndex = tonumber(itemData.data)
     end,
     default = "1 - N",
-    },
-    --Icon Select
-    {
-    type = LAM.ST_DROPDOWN,
+  }
+  --Icon Select
+  panel:AddSetting {
+    type = LAM.ST_ICONPICKER,
     label = HH.Lang.WHEEL_ICON,
-    items = HH.Icon2Text(HH.IconList),
-    getFunction = function() return IconName or "/esoui/art/collections/collections_tabicon_housing_up.dds"  end,
-    setFunction = function(var, itemName, itemData)
-      IconName = itemName
-      Icon = itemData.data
+    items = HH.IconList,
+    getFunction = function() return Icon  end,
+    setFunction = function(var, iconIndex, iconPath)
+      IconName = iconPath
+      Icon = iconIndex
       end,
-    default = "|t32:32:/esoui/art/collections/collections_tabicon_housing_up.dds|t"
-    },
-    --Name
-    {
+    default = 1,
+  }
+  --Name
+  panel:AddSetting {
     type = LAM.ST_EDIT,
     label = HH.Lang.WHEEL_NAME,
     getFunction = function() return Name or "" end,
     setFunction = function(text) Name = text end,
-    default = ""
-    },
-    --House Choice
-    {
+    default = " "
+  }
+  if #houseItems > 0 then
+  --House Choice
+  panel:AddSetting {
     type = LAM.ST_DROPDOWN,
     label = HH.Lang.HOUSE,
     items = houseItems,
     getFunction = function()
-      return HouseName or ""
+      return HouseName
     end,
     setFunction = function(control, itemName, itemData)
       HouseName = itemName
       HouseId = itemData.data.id
       HouseOwner = itemData.data.owner
     end,
-    default = ""
-    },
-    --Jump to Interior or Exterior
-    {
+  }
+  else
+    panel:AddSetting {
+      type = LAM.ST_LABEL,
+      label = HH.Lang.NO_HOUSES,
+    }
+  end
+  --Jump to Interior or Exterior
+  panel:AddSetting {
     type = LAM.ST_CHECKBOX,
     label = HH.Lang.HOUSE_EXTERIOR,
     getFunction = function() return UseExterior or false end,
     setFunction = function(var)
       UseExterior = var
     end,
-    default = false
-    }
+    default = false,
   }
-  local controls = panel:AddSettings(options)
-    --Apply
-  panel:AddSetting({
+  --Apply
+  panel:AddSetting {
     type = LAM.ST_BUTTON,
     label = HH.Lang.WHEEL_APPLY,
     buttonText = HH.Lang.WHEEL_APPLY,
     clickHandler  = function()
-      local Tex
-      if Icon then
-        Tex = Icon
-      else
-        Tex = HH.IconList[1]
-      end
       HH.SV.Command[Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex or 4] = {
         ["name"] = Name or "",
-        ["icon"] = tostring(Tex),
-        ["house"] = HouseId or "",
+        ["icon"] = IconName,
+        ["house"] = HouseId,
         ["exterior"] = UseExterior or false,
         ["houseName"] = HouseName or "",
         ["houseOwner"] = HouseOwner or "self",
       }
       panel:UpdateControls()
     end
-    })
-    --Status
-    local options2 = {
-    {
+  }
+  --Status
+  panel:AddSetting {
     type = LAM.ST_SECTION,
     label = HH.Lang.WHEEL_EDIT,
-    },
-    --Category
-    {
+  }
+  --Category
+  panel:AddSetting {
     type = LAM.ST_DROPDOWN,
     label = HH.Lang.WHEEL_CATEGORY,
     items = {
@@ -404,12 +390,12 @@ function HH.BuildMenu()
     getFunction = function() return CategoryName2 or GetString(SI_HOTBARCATEGORY10) end,
     setFunction = function(var, itemName, itemData)
       CategoryName2 = itemName
-      Category2 = itemData.data
+      Category2 = tonumber(itemData.data)
     end,
     default = GetString(SI_HOTBARCATEGORY10),
-    },
-    --Index
-    {
+  }
+  --Index
+  panel:AddSetting {
     type = LAM.ST_DROPDOWN,
     label = HH.Lang.WHEEL_SLOT,
     items = {
@@ -422,15 +408,15 @@ function HH.BuildMenu()
       { name = "7 - E", data = 6 },
       { name = "8 - NE", data = 5 },
     },
-    getFunction = function() return EntryIndexName2 or "1 - N" end,
+    getFunction = function() return EntryIndexName or "1 - N" end,
     setFunction = function(var, itemName, itemData)
       EntryIndexName2 = itemName
-      EntryIndex2 = itemData.data
+      EntryIndex2 = tonumber(itemData.data)
       end,
-    default = "1 - N"
-    },
-    --Empty
-    {
+    default = "1 - N",
+  }
+  --Empty
+  panel:AddSetting {
     type = LAM.ST_BUTTON,
     label = HH.Lang.WHEEL_EMPTY,
     buttonText = HH.Lang.WHEEL_EMPTY,
@@ -438,9 +424,9 @@ function HH.BuildMenu()
       HH.SV.Command[Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL] = {}
       panel:UpdateControls()
     end,
-    },
-    --Delete
-    {
+  }
+  --Delete
+  panel:AddSetting {
     type = LAM.ST_BUTTON,
     label = HH.Lang.WHEEL_DELETE,
     buttonText = HH.Lang.WHEEL_DELETE,
@@ -448,9 +434,7 @@ function HH.BuildMenu()
       HH.SV.Command[Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex2 or 4] = nil
       panel:UpdateControls()
     end,
-    },
   }
-  panel:AddSettings(options2)
 end
 
 -- Start Here
