@@ -231,24 +231,6 @@ function HH.BuildMenu()
     allowDefaults = true,  -- Show "Reset to Defaults" button
     allowRefresh = false    -- Enable automatic control updates
   })
-
-  local configuredHeadline = panel:AddSetting {
-    type = LAM.ST_SECTION,
-    label = HH.Lang.WHEEL_DESC,
-  }
-
-  local configuredLabel = panel:AddSetting {
-		type = LAM.ST_LABEL,
-    label = function()
-      return table.concat({
-        HH.Part(HOTBAR_CATEGORY_QUICKSLOT_WHEEL),
-        HH.Part(HOTBAR_CATEGORY_ALLY_WHEEL),
-        HH.Part(HOTBAR_CATEGORY_MEMENTO_WHEEL),
-        HH.Part(HOTBAR_CATEGORY_TOOL_WHEEL),
-        HH.Part(HOTBAR_CATEGORY_EMOTE_WHEEL)
-      })
-    end
-  }
   
   --Option Part
   local Category, CategoryName, EntryIndex, EntryIndexName, Icon, IconName, Name, House, HouseName, HouseId, HouseOwner
@@ -260,6 +242,22 @@ function HH.BuildMenu()
     setFunction = function(var)
       HH.CV.CV = var
       HH.SwitchSV()
+    end
+  }
+  panel:AddSetting {
+    type = LAM.ST_SECTION,
+    label = HH.Lang.WHEEL_DESC,
+  }
+  panel:AddSetting {
+		type = LAM.ST_LABEL,
+    label = function()
+      return table.concat({
+        HH.Part(HOTBAR_CATEGORY_QUICKSLOT_WHEEL),
+        HH.Part(HOTBAR_CATEGORY_ALLY_WHEEL),
+        HH.Part(HOTBAR_CATEGORY_MEMENTO_WHEEL),
+        HH.Part(HOTBAR_CATEGORY_TOOL_WHEEL),
+        HH.Part(HOTBAR_CATEGORY_EMOTE_WHEEL)
+      })
     end
   }
   --Create QuickSlot
@@ -278,7 +276,7 @@ function HH.BuildMenu()
       { name = GetString(SI_HOTBARCATEGORY14), data = HOTBAR_CATEGORY_TOOL_WHEEL},
       { name = GetString(SI_HOTBARCATEGORY11), data = HOTBAR_CATEGORY_EMOTE_WHEEL},
     },
-    getFunction = function() return CategoryName or GetString(SI_HOTBARCATEGORY10) end,
+    getFunction = function() return Category or GetString(SI_HOTBARCATEGORY10) end,
     setFunction = function(var, itemName, itemData)
       CategoryName = itemName
       Category = tonumber(itemData.data)
@@ -299,7 +297,7 @@ function HH.BuildMenu()
       { name = "7 - E", data = 6 },
       { name = "8 - NE", data = 5 },
     },
-    getFunction = function() return EntryIndexName or "1 - N" end,
+    getFunction = function() return EntryIndex or "1 - N" end,
     setFunction = function(var, itemName, itemData)
       EntryIndexName = itemName
       EntryIndex = tonumber(itemData.data)
@@ -332,11 +330,11 @@ function HH.BuildMenu()
     label = HH.Lang.HOUSE,
     items = houseItems,
     getFunction = function()
-      return HouseName or ""
+      return HouseId or ""
     end,
     setFunction = function(control, itemName, itemData)
       HouseName = itemName
-      HouseId = itemData.data
+      HouseId = tonumber(itemData.data)
       HouseOwner = itemData.owner
     end,
     default = ""
@@ -360,7 +358,7 @@ function HH.BuildMenu()
       HH.SV.Command[Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex or 4] = {
         ["name"] = Name or "",
         ["icon"] = IconName,
-        ["house"] = tonumber(HouseId),
+        ["house"] = HouseId,
         ["exterior"] = UseExterior or false,
         ["houseName"] = HouseName or "",
         ["houseOwner"] = HouseOwner or "self",
@@ -384,7 +382,7 @@ function HH.BuildMenu()
       { name = GetString(SI_HOTBARCATEGORY14), data = HOTBAR_CATEGORY_TOOL_WHEEL},
       { name = GetString(SI_HOTBARCATEGORY11), data = HOTBAR_CATEGORY_EMOTE_WHEEL},
     },
-    getFunction = function() return CategoryName2 or GetString(SI_HOTBARCATEGORY10) end,
+    getFunction = function() return Category2 or GetString(SI_HOTBARCATEGORY10) end,
     setFunction = function(var, itemName, itemData)
       CategoryName2 = itemName
       Category2 = tonumber(itemData.data)
@@ -405,7 +403,7 @@ function HH.BuildMenu()
       { name = "7 - E", data = 6 },
       { name = "8 - NE", data = 5 },
     },
-    getFunction = function() return EntryIndexName2 or "1 - N" end,
+    getFunction = function() return EntryIndex2 or "1 - N" end,
     setFunction = function(var, itemName, itemData)
       EntryIndexName2 = itemName
       EntryIndex2 = tonumber(itemData.data)
