@@ -185,7 +185,7 @@ end
 
 function HH.Part(Index)
   local Positons = {"1 - N    ", "2 - NW", "3 - W   ", "4 - SW", "5 - S    ", "6 - SE  ", "7 - E    ", "8 - NE "}
-  local Order = {4, 3, 2, 1, 8, 7, 6, 5}
+  local Order = {4, 5, 2, 7, 8, 1, 6, 3}
   local StringList = {SI_HOTBARCATEGORY10, SI_HOTBARCATEGORY11, SI_HOTBARCATEGORY12, SI_HOTBARCATEGORY13, SI_HOTBARCATEGORY14}
   local Tep = GetString(StringList[Index - 9]).."\r\n  "
   if HH.SV.Command[Index] then
@@ -271,13 +271,13 @@ function HH.BuildMenu()
     label = HH.Lang.WHEEL_SLOT,
     items = {
       { name = "1 - N", data = 4 },
-      { name = "2 - NW", data = 3 },
+      { name = "2 - NW", data = 5 },
       { name = "3 - W", data = 2 },
-      { name = "4 - SW", data = 1 },
+      { name = "4 - SW", data = 7 },
       { name = "5 - S", data = 8 },
-      { name = "6 - SE", data = 7 },
+      { name = "6 - SE", data = 1 },
       { name = "7 - E", data = 6 },
-      { name = "8 - NE", data = 5 },
+      { name = "8 - NE", data = 3 },
     },
     getFunction = function() return EntryIndexName or "1 - N" end,
     setFunction = function(var, itemName, itemData)
@@ -328,9 +328,8 @@ function HH.BuildMenu()
       if HouseOwner ~= "self" then
         return HouseOwner or " "
       end
-    return HH.Lang.HOUSE_COLLECTED
-    end,
-    tooltip = HH.Lang.HOUSE_OWNER
+      return HH.Lang.HOUSE_COLLECTED or " "
+    end
   }
   else
     panel:AddSetting {
@@ -418,13 +417,13 @@ function HH.BuildMenu()
     label = HH.Lang.WHEEL_SLOT,
     items = {
       { name = "1 - N", data = 4 },
-      { name = "2 - NW", data = 3 },
+      { name = "2 - NW", data = 5 },
       { name = "3 - W", data = 2 },
-      { name = "4 - SW", data = 1 },
+      { name = "4 - SW", data = 7 },
       { name = "5 - S", data = 8 },
-      { name = "6 - SE", data = 7 },
+      { name = "6 - SE", data = 1 },
       { name = "7 - E", data = 6 },
-      { name = "8 - NE", data = 5 },
+      { name = "8 - NE", data = 3 },
     },
     getFunction = function() return EntryIndexName or "1 - N" end,
     setFunction = function(var, itemName, itemData)
