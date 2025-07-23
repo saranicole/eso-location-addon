@@ -1,10 +1,11 @@
 ## Title: House Hotkey
 ## Author: @thisbeaurielle
 ## Version: 1.0.0
-## APIVersion: 101045
+## APIVersion: 101045 101046
 ## AddOnVersion: 1
 ## SavedVariables: HouseHotkey_Vars
 ## DependsOn: LibHarvensAddonSettings
 
 HouseHotkey.lua
-en.lua
+lang/en.lua
+lang/$(language).lua
