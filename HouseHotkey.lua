@@ -4,8 +4,6 @@ local HH = HouseHotkey
 
 --Basic Info
 HH.Name = "HouseHotkey"
-HH.Author = "@thisbeaurielle"
-HH.Version = "1.0.0"
 
 --Setting
 HH.Default = {
@@ -54,7 +52,7 @@ local function OnPlayerActivated(eventCode)
     if currentSearchState ~= ZO_HOUSE_TOURS_SEARCH_STATES.COMPLETE then
         HOUSE_TOURS_SEARCH_MANAGER:ExecuteSearch(HOUSE_TOURS_LISTING_TYPE_FAVORITE)
     end
-    zo_callLater(HH.BuildMenu, 3000)
+    zo_callLater(HH.BuildMenu, 1500)
 end
 
 --Account/Character Setting
@@ -93,6 +91,7 @@ function HH.HookWheel()
         Old(Self, name, inactiveIcon, activeIcon, callback, data)
       end
     end
+  end
 end
 
 -- /script HouseHotkey.Execute()
@@ -210,7 +209,7 @@ function HH.Part(Index)
     end
   end
 
-  return Tep.."\r\n"
+  return Tep
 end
 
 --Menu Part
@@ -232,7 +231,7 @@ function HH.BuildMenu()
   })
   
   --Option Part
-  local Category, CategoryName, EntryIndex, EntryIndexName, Icon, IconName, Name, House, HouseName, HouseId, HouseOwner
+  local Category, CategoryName, EntryIndex, EntryIndexName, Icon, IconName, Name, House, HouseName, HouseId, HouseOwner, Status
   local Category2, CategoryName2, EntryIndex2, EntryIndexName2
   panel:AddSetting {
     type = LAM.ST_CHECKBOX,
@@ -241,22 +240,6 @@ function HH.BuildMenu()
     setFunction = function(var)
       HH.CV.CV = var
       HH.SwitchSV()
-    end
-  }
-  panel:AddSetting {
-    type = LAM.ST_SECTION,
-    label = HH.Lang.WHEEL_DESC,
-  }
-  panel:AddSetting {
-		type = LAM.ST_LABEL,
-    label = function()
-      return table.concat({
-        HH.Part(HOTBAR_CATEGORY_QUICKSLOT_WHEEL),
-        HH.Part(HOTBAR_CATEGORY_ALLY_WHEEL),
-        HH.Part(HOTBAR_CATEGORY_MEMENTO_WHEEL),
-        HH.Part(HOTBAR_CATEGORY_TOOL_WHEEL),
-        HH.Part(HOTBAR_CATEGORY_EMOTE_WHEEL)
-      })
     end
   }
   --Create QuickSlot
@@ -336,7 +319,18 @@ function HH.BuildMenu()
       HouseName = itemName
       HouseId = itemData.data.id
       HouseOwner = itemData.data.owner
+      panel:UpdateControls()
     end,
+  }
+  panel:AddSetting {
+    type = LAM.ST_LABEL,
+    label = function()
+      if HouseOwner ~= "self" then
+        return HouseOwner or " "
+      end
+    return HH.Lang.HOUSE_COLLECTED
+    end,
+    tooltip = HH.Lang.HOUSE_OWNER
   }
   else
     panel:AddSetting {
@@ -360,21 +354,45 @@ function HH.BuildMenu()
     label = HH.Lang.WHEEL_APPLY,
     buttonText = HH.Lang.WHEEL_APPLY,
     clickHandler  = function()
-      HH.SV.Command[Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex or 4] = {
-        ["name"] = Name or "",
-        ["icon"] = IconName,
-        ["house"] = HouseId,
-        ["exterior"] = UseExterior or false,
-        ["houseName"] = HouseName or "",
-        ["houseOwner"] = HouseOwner or "self",
-      }
-      panel:UpdateControls()
+      if not Name or Name == "" then
+        Status = HH.Lang.STATUS_NO_NAME
+      else
+        HH.SV.Command[Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex or 4] = {
+          ["name"] = Name or "",
+          ["icon"] = IconName,
+          ["house"] = HouseId,
+          ["exterior"] = UseExterior or false,
+          ["houseName"] = HouseName or "",
+          ["houseOwner"] = HouseOwner or "self",
+        }
+        Status = HH.Lang.STATUS_ADDED
+        panel:UpdateControls()
+      end
     end
   }
   --Status
   panel:AddSetting {
+    type = LAM.ST_LABEL,
+    label = function()
+      return Status or " "
+    end
+  }
+  --Configured
+  panel:AddSetting {
     type = LAM.ST_SECTION,
-    label = HH.Lang.WHEEL_EDIT,
+    label = HH.Lang.WHEEL_DESC,
+  }
+  panel:AddSetting {
+		type = LAM.ST_LABEL,
+    label = function()
+      return table.concat({
+        HH.Part(HOTBAR_CATEGORY_QUICKSLOT_WHEEL),
+        HH.Part(HOTBAR_CATEGORY_ALLY_WHEEL),
+        HH.Part(HOTBAR_CATEGORY_MEMENTO_WHEEL),
+        HH.Part(HOTBAR_CATEGORY_TOOL_WHEEL),
+        HH.Part(HOTBAR_CATEGORY_EMOTE_WHEEL)
+      })
+    end
   }
   --Category
   panel:AddSetting {
