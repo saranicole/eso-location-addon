@@ -39,8 +39,8 @@ local function OnAddOnLoaded(eventCode, addonName)
 	EVENT_MANAGER:UnregisterForEvent(HH.Name, EVENT_ADD_ON_LOADED)
   
   --Get Account/Character Setting
-  HH.AV = ZO_SavedVars:NewAccountWide("HouseHotkey_Vars", 1, nil, HH.Default, GetWorldName())
-  HH.CV = ZO_SavedVars:NewCharacterIdSettings("HouseHotkey_Vars", 1, nil, HH.Default, GetWorldName())
+  HH.AV = ZO_SavedVars:NewAccountWide("HouseHotkey_Vars", 1, nil, HH.Default)
+  HH.CV = ZO_SavedVars:NewCharacterIdSettings("HouseHotkey_Vars", 1, nil, HH.Default)
   HH.SwitchSV()
   
   --Hook Wheels
@@ -165,7 +165,7 @@ function HH.GetHouseDropdownChoices()
             local referenceId = entry:GetReferenceId()
             if (not entry:IsLocked()) then
               local houseEntry = {
-                name = entry:GetFormattedName(), data = referenceId, owner = "self"
+                name = entry:GetFormattedName(), data = {id = referenceId, owner = "self"}
               }
               ownedHouseItems[index] = houseEntry
               counter = counter + 1
@@ -178,7 +178,7 @@ function HH.GetHouseDropdownChoices()
     favoriteHouses = HOUSE_TOURS_SEARCH_MANAGER:GetSearchResults(HOUSE_TOURS_LISTING_TYPE_FAVORITE)
     for index, entry in ipairs(favoriteHouses) do
       local houseEntry = {
-        name = "[FAV] "..entry:GetHouseName(), data = entry:GetHouseId(), owner = entry:GetOwnerDisplayName()
+        name = "[FAV] "..entry:GetHouseName(), data = {id = entry:GetHouseId(), owner = entry:GetOwnerDisplayName()}
       }
       ownedHouseItems[counter + index] = houseEntry
     end
@@ -229,7 +229,7 @@ function HH.BuildMenu()
 
   local panel = LAM:AddAddon(HH.Name, {
     allowDefaults = true,  -- Show "Reset to Defaults" button
-    allowRefresh = true    -- Enable automatic control updates
+    allowRefresh = false    -- Enable automatic control updates
   })
   
   --Option Part
@@ -335,8 +335,8 @@ function HH.BuildMenu()
     end,
     setFunction = function(control, itemName, itemData)
       HouseName = itemName
-      HouseId = tonumber(itemData.data)
-      HouseOwner = itemData.owner
+      HouseId = itemData.data.id
+      HouseOwner = itemData.data.owner
     end,
     default = " "
   }
