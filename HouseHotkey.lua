@@ -296,7 +296,7 @@ function HH.BuildMenu()
       IconName = iconPath
       Icon = iconIndex
       end,
-    default = 1,
+    default = HH.IconList[1],
   }
   --Name
   panel:AddSetting {
