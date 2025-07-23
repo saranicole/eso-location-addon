@@ -165,7 +165,7 @@ function HH.GetHouseDropdownChoices()
             local referenceId = entry:GetReferenceId()
             if (not entry:IsLocked()) then
               local houseEntry = {
-                name = entry:GetFormattedName(), data = { owner = "self", id = referenceId}
+                name = entry:GetFormattedName(), data = referenceId, owner = "self"
               }
               ownedHouseItems[index] = houseEntry
               counter = counter + 1
@@ -178,7 +178,7 @@ function HH.GetHouseDropdownChoices()
     favoriteHouses = HOUSE_TOURS_SEARCH_MANAGER:GetSearchResults(HOUSE_TOURS_LISTING_TYPE_FAVORITE)
     for index, entry in ipairs(favoriteHouses) do
       local houseEntry = {
-        name = "[FAV] "..entry:GetHouseName(), data = { owner = entry:GetOwnerDisplayName(), id = entry:GetHouseId() }
+        name = "[FAV] "..entry:GetHouseName(), data = entry:GetHouseId(), owner = entry:GetOwnerDisplayName()
       }
       ownedHouseItems[counter + index] = houseEntry
     end
@@ -336,8 +336,8 @@ function HH.BuildMenu()
     end,
     setFunction = function(control, itemName, itemData)
       HouseName = itemName
-      HouseId = tonumber(itemData.data.id)
-      HouseOwner = itemData.data.owner
+      HouseId = itemData.data
+      HouseOwner = itemData.owner
     end,
     default = ""
   }
