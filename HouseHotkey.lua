@@ -185,7 +185,7 @@ end
 
 function HH.Part(Index)
   local Positons = {"1 - N    ", "2 - NW", "3 - W   ", "4 - SW", "5 - S    ", "6 - SE  ", "7 - E    ", "8 - NE "}
-  local Order = {4, 3, 2, 1, 8, 7, 6, 5}
+  local Order = {4, 5, 2, 7, 8, 1, 6, 3}
   local StringList = {SI_HOTBARCATEGORY10, SI_HOTBARCATEGORY11, SI_HOTBARCATEGORY12, SI_HOTBARCATEGORY13, SI_HOTBARCATEGORY14}
   local Tep = GetString(StringList[Index - 9]).."\r\n  "
   if HH.SV.Command[Index] then
