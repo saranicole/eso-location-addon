@@ -276,7 +276,7 @@ function HH.BuildMenu()
       { name = GetString(SI_HOTBARCATEGORY14), data = HOTBAR_CATEGORY_TOOL_WHEEL},
       { name = GetString(SI_HOTBARCATEGORY11), data = HOTBAR_CATEGORY_EMOTE_WHEEL},
     },
-    getFunction = function() return Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL end,
+    getFunction = function() return CategoryName or GetString(SI_HOTBARCATEGORY10) end,
     setFunction = function(var, itemName, itemData)
       CategoryName = itemName
       Category = tonumber(itemData.data)
@@ -382,7 +382,7 @@ function HH.BuildMenu()
       { name = GetString(SI_HOTBARCATEGORY14), data = HOTBAR_CATEGORY_TOOL_WHEEL},
       { name = GetString(SI_HOTBARCATEGORY11), data = HOTBAR_CATEGORY_EMOTE_WHEEL},
     },
-    getFunction = function() return Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL end,
+    getFunction = function() return CategoryName2 or GetString(SI_HOTBARCATEGORY10) end,
     setFunction = function(var, itemName, itemData)
       CategoryName2 = itemName
       Category2 = tonumber(itemData.data)
