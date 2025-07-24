@@ -313,15 +313,14 @@ function HH.BuildMenu()
     label = HH.Lang.HOUSE,
     items = houseItems,
     getFunction = function()
-      return HouseName
+      return HouseName or houseItems[1].name
     end,
     setFunction = function(control, itemName, itemData)
       HouseName = itemName
       HouseId = itemData.data.id
       HouseOwner = itemData.data.owner
       panel:UpdateControls()
-    end,
-    default = 1
+    end
   }
   panel:AddSetting {
     type = LAM.ST_LABEL,
@@ -431,7 +430,7 @@ function HH.BuildMenu()
       EntryIndexName2 = itemName
       EntryIndex2 = tonumber(itemData.data)
     end,
-    default = 1,
+    default = "1 - N",
   }
   --Empty
   panel:AddSetting {
