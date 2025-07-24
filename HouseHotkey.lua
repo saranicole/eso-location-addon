@@ -295,8 +295,7 @@ function HH.BuildMenu()
     setFunction = function(var, iconIndex, iconPath)
       IconName = iconPath
       Icon = iconIndex
-      end,
-    default = 1,
+    end,
   }
   --Name
   panel:AddSetting {
@@ -320,7 +319,7 @@ function HH.BuildMenu()
       HouseId = itemData.data.id
       HouseOwner = itemData.data.owner
       panel:UpdateControls()
-    end,
+    end
   }
   panel:AddSetting {
     type = LAM.ST_LABEL,
@@ -357,12 +356,12 @@ function HH.BuildMenu()
         Status = HH.Lang.STATUS_NO_NAME
       else
         HH.SV.Command[Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex or 4] = {
-          ["name"] = Name or "",
-          ["icon"] = IconName,
-          ["house"] = HouseId,
+          ["name"] = Name,
+          ["icon"] = IconName or HH.IconList[1],
+          ["house"] = HouseId or houseItems[1].data.id,
           ["exterior"] = UseExterior or false,
-          ["houseName"] = HouseName or "",
-          ["houseOwner"] = HouseOwner or "self",
+          ["houseName"] = HouseName or houseItems[1].name,
+          ["houseOwner"] = HouseOwner or houseItems[1].data.owner or "self",
         }
         Status = HH.Lang.STATUS_ADDED
         panel:UpdateControls()
@@ -429,7 +428,7 @@ function HH.BuildMenu()
     setFunction = function(var, itemName, itemData)
       EntryIndexName2 = itemName
       EntryIndex2 = tonumber(itemData.data)
-      end,
+    end,
     default = "1 - N",
   }
   --Empty
