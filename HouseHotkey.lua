@@ -296,7 +296,6 @@ function HH.BuildMenu()
       IconName = iconPath
       Icon = iconIndex
     end,
-    default = 1,
   }
   --Name
   panel:AddSetting {
@@ -357,8 +356,8 @@ function HH.BuildMenu()
         Status = HH.Lang.STATUS_NO_NAME
       else
         HH.SV.Command[Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex or 4] = {
-          ["name"] = Name or "",
-          ["icon"] = IconName,
+          ["name"] = Name,
+          ["icon"] = IconName or HH.IconList[1],
           ["house"] = HouseId or houseItems[1].data.id,
           ["exterior"] = UseExterior or false,
           ["houseName"] = HouseName or houseItems[1].name,
