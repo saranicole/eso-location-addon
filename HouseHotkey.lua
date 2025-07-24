@@ -295,8 +295,8 @@ function HH.BuildMenu()
     setFunction = function(var, iconIndex, iconPath)
       IconName = iconPath
       Icon = iconIndex
-      end,
-    default = HH.IconList[1],
+    end,
+    default = 1,
   }
   --Name
   panel:AddSetting {
@@ -321,7 +321,7 @@ function HH.BuildMenu()
       HouseOwner = itemData.data.owner
       panel:UpdateControls()
     end,
-    default = houseItems[1].name
+    default = 1
   }
   panel:AddSetting {
     type = LAM.ST_LABEL,
