@@ -313,7 +313,7 @@ function HH.BuildMenu()
     label = HH.Lang.HOUSE,
     items = houseItems,
     getFunction = function()
-      return HouseName or houseItems[1].name
+      return HouseName
     end,
     setFunction = function(control, itemName, itemData)
       HouseName = itemName
@@ -359,10 +359,10 @@ function HH.BuildMenu()
         HH.SV.Command[Category or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex or 4] = {
           ["name"] = Name or "",
           ["icon"] = IconName,
-          ["house"] = HouseId,
+          ["house"] = HouseId or houseItems[1].data.id,
           ["exterior"] = UseExterior or false,
-          ["houseName"] = HouseName or "",
-          ["houseOwner"] = HouseOwner or "self",
+          ["houseName"] = HouseName or houseItems[1].name,
+          ["houseOwner"] = HouseOwner or houseItems[1].data.owner or "self",
         }
         Status = HH.Lang.STATUS_ADDED
         panel:UpdateControls()
@@ -448,7 +448,7 @@ function HH.BuildMenu()
     label = HH.Lang.WHEEL_DELETE,
     buttonText = HH.Lang.WHEEL_DELETE,
     clickHandler = function()
-      HH.SV.Command[Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex2] = nil
+      HH.SV.Command[Category2 or HOTBAR_CATEGORY_QUICKSLOT_WHEEL][EntryIndex2 or 4] = nil
       panel:UpdateControls()
     end,
   }
