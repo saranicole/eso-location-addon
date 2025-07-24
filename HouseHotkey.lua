@@ -430,8 +430,8 @@ function HH.BuildMenu()
     setFunction = function(var, itemName, itemData)
       EntryIndexName2 = itemName
       EntryIndex2 = tonumber(itemData.data)
-      end,
-    default = "1 - N",
+    end,
+    default = 1,
   }
   --Empty
   panel:AddSetting {
