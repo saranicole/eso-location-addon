@@ -222,7 +222,6 @@ end
 local LAM = LibHarvensAddonSettings
 
 function HH.BuildMenu()
-
   local houseItems = HH.GetHouseDropdownChoices()
 
   local panel = LAM:AddAddon(HH.Name, {
@@ -247,6 +246,7 @@ function HH.BuildMenu()
     type = LAM.ST_SECTION,
     label = HH.Lang.CREATE_QUICKSLOT,
   }
+if #houseItems > 0 then
   --Category
   panel:AddSetting {
     type = LAM.ST_DROPDOWN,
@@ -305,7 +305,7 @@ function HH.BuildMenu()
     setFunction = function(text) Name = text end,
     default = " "
   }
-  if #houseItems > 0 then
+
   --House Choice
   panel:AddSetting {
     type = LAM.ST_DROPDOWN,
@@ -330,12 +330,7 @@ function HH.BuildMenu()
       return HH.Lang.HOUSE_COLLECTED or " "
     end
   }
-  else
-    panel:AddSetting {
-      type = LAM.ST_LABEL,
-      label = HH.Lang.NO_HOUSES,
-    }
-  end
+
   --Jump to Interior or Exterior
   panel:AddSetting {
     type = LAM.ST_CHECKBOX,
@@ -451,6 +446,12 @@ function HH.BuildMenu()
       panel:UpdateControls()
     end,
   }
+  else
+    panel:AddSetting {
+      type = LAM.ST_LABEL,
+      label = HH.Lang.NO_HOUSES,
+    }
+  end
 end
 
 -- Start Here
